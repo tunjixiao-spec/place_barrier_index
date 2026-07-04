@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "吉林哈达岭",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "吉林哈达岭", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 124.670535698316414, 42.138166279268503 ], [ 125.173254416575986, 42.595766510349016 ], [ 125.921933125151156, 43.014760911504787 ], [ 126.203155614362913, 43.069484282330301 ], [ 126.921588686596905, 43.560935981296879 ] ] } }
+]
+}

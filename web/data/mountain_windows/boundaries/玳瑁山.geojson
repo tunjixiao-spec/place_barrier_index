@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "玳瑁山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "玳瑁山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 116.805155082142932, 25.138049856493222 ], [ 117.002999341861056, 25.263086250561305 ], [ 117.272321158614616, 25.554202796298725 ] ] } }
+]
+}

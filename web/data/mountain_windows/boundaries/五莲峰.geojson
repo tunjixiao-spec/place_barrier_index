@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "五莲峰",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "五莲峰", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 103.253825340074542, 27.244894832349065 ], [ 103.348988019934978, 27.390788517528865 ], [ 103.421673335531196, 27.638875942907543 ], [ 103.534550010623306, 27.825692528935143 ], [ 103.938749151546205, 28.241346550876393 ], [ 104.124768120531954, 28.458170929462323 ] ] } }
+]
+}

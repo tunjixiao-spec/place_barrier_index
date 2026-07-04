@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>山脉移动窗口 CBI 静态查询系统</title>
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  >
+  <link rel="stylesheet" href="./static/css/style.css">
+</head>
+<body>
+  <div class="page-shell">
+    <header class="page-header">
+      <div>
+        <p class="eyebrow">GitHub Pages 静态查询</p>
+        <h1>山脉移动窗口 CBI 查询与可视化系统</h1>
+        <p class="subtitle">
+          纯前端读取预导出的 06b 静态 JSON / GeoJSON 数据。用户输入山脉名称后，浏览器直接返回
+          mountain_CBI、local_signal_CBI，并在地图上显示不同移动窗口和分异连续段。
+        </p>
+      </div>
+      <div class="header-note">
+        <span>无 Python 后端</span>
+        <span>无服务器接口</span>
+        <span>适合 GitHub Pages</span>
+      </div>
+    </header>
+
+    <section class="panel control-panel">
+      <div class="panel-title-row">
+        <h2>山脉查询</h2>
+        <button id="queryButton" class="primary-button" disabled>查询 CBI</button>
+      </div>
+      <div class="control-grid mountain-control-grid">
+        <label class="control-item">
+          <span>手动输入山脉名称</span>
+          <input id="mountainSearchInput" list="mountainList" placeholder="例如：秦岭、横断山、武夷山">
+          <datalist id="mountainList"></datalist>
+        </label>
+        <label class="control-item">
+          <span>或从列表选择</span>
+          <select id="mountainSelect"></select>
+        </label>
+        <label class="control-item">
+          <span>窗口着色指标</span>
+          <select id="windowColorSelect">
+            <option value="CBI">local_CBI / CBI</option>
+            <option value="small_CBI">small_CBI</option>
+            <option value="big_CBI">big_CBI</option>
+            <option value="sample_balance">sample_balance</option>
+            <option value="window_membership_change_ratio">clip change ratio</option>
+          </select>
+        </label>
+        <label class="control-item">
+          <span>地图显示</span>
+          <select id="mapModeSelect">
+            <option value="all">山脉线 + 窗口 + 连续段 + 地名点</option>
+            <option value="windows">仅移动窗口</option>
+            <option value="segments">仅分异连续段</option>
+            <option value="points">仅地名点</option>
+          </select>
+        </label>
+      </div>
+      <div id="statusMessage" class="status-line">正在读取 06b 静态数据……</div>
+      <div id="errorMessage" class="error-line" hidden></div>
+    </section>
+
+    <section class="panel">
+      <h2>山脉尺度核心指标</h2>
+      <div class="metric-grid mountain-metric-grid">
+        <div class="metric-card"><span>mountain_CBI</span><strong id="metricMountainCbi">—</strong></div>
+        <div class="metric-card"><span>mountain_CBI_level</span><strong id="metricMountainLevel">—</strong></div>
+        <div class="metric-card"><span>local_signal_CBI</span><strong id="metricLocalSignal">—</strong></div>
+        <div class="metric-card"><span>local_signal_level</span><strong id="metricLocalLevel">—</strong></div>
+        <div class="metric-card"><span>primary_side_width_km</span><strong id="metricSideWidth">—</strong></div>
+        <div class="metric-card"><span>reliable_coverage_ratio</span><strong id="metricReliableCoverage">—</strong></div>
+        <div class="metric-card"><span>high_CBI_coverage_ratio</span><strong id="metricHighCoverage">—</strong></div>
+        <div class="metric-card"><span>contrast_segment_ratio</span><strong id="metricSegmentRatio">—</strong></div>
+        <div class="metric-card"><span>evidence_quality</span><strong id="metricEvidence">—</strong></div>
+      </div>
+    </section>
+
+    <div class="main-grid">
+      <section class="panel map-panel">
+        <div class="panel-title-row">
+          <h2>移动窗口地图</h2>
+          <div id="mapMeta" class="mini-text">等待查询</div>
+        </div>
+        <div id="map"></div>
+        <div class="legend-box">
+          <div class="legend-title">窗口 CBI 图例</div>
+          <div id="legendContent" class="legend-content"></div>
+        </div>
+      </section>
+
+      <section class="panel explanation-panel">
+        <h2>自动解释</h2>
+        <div id="interpretationText" class="interpretation-text">
+          请选择或输入山脉名称，然后点击“查询 CBI”。
+        </div>
+        <div class="explanation-rule">
+          <h3>地图阅读方式</h3>
+          <ul>
+            <li>彩色粗线表示不同移动窗口，颜色越深 local_CBI 越高。</li>
+            <li>金色线表示地名文化社区分异连续段。</li>
+            <li>圆点表示被该山脉分隔的地名特征点。</li>
+            <li>点击窗口可查看 CBI、small_CBI、big_CBI、可靠性和 clip 风险。</li>
+            <li>点击连续段可查看平均 segment_local_CBI 和主导社区。</li>
+            <li>点击地名点可查看地名、特征字、small_feature 和 big_feature。</li>
+          </ul>
+        </div>
+      </section>
+    </div>
+
+    <section class="panel">
+      <h2>窗口与侧宽分析</h2>
+      <div class="chart-grid">
+        <div class="chart-card">
+          <h3>沿山脉 station 的 local_CBI 曲线</h3>
+          <div id="windowCbiChart" class="chart-box"></div>
+        </div>
+        <div class="chart-card">
+          <h3>small_CBI / big_CBI 对比</h3>
+          <div id="smallBigChart" class="chart-box"></div>
+        </div>
+        <div class="chart-card">
+          <h3>侧宽敏感性 mountain_CBI / local_signal</h3>
+          <div id="sideWidthChart" class="chart-box"></div>
+        </div>
+        <div class="chart-card">
+          <h3>地名文化社区分异连续段</h3>
+          <div id="segmentChart" class="chart-box"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+  <script src="./static/js/main.js"></script>
+</body>
+</html>

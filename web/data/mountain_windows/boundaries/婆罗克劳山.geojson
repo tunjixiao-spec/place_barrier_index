@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "婆罗克劳山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "婆罗克劳山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 80.424238979440716, 44.532097319035337 ], [ 82.253771775209444, 44.236647788825962 ], [ 83.618326730989594, 43.92468670439488 ], [ 86.167204216483285, 43.439460739754765 ] ] } }
+]
+}

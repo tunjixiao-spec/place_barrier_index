@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "十万大山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "十万大山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 107.182057992091899, 22.177538806787595 ], [ 107.556045763350212, 22.181334565918036 ], [ 108.123890978289623, 22.220254992662312 ], [ 109.101261103352229, 22.532925246535918 ], [ 109.305577366924481, 22.616301133856282 ] ] } }
+]
+}

@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "莲花山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "莲花山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 114.973797220865634, 22.967654645271487 ], [ 115.384623422794803, 23.13690227288885 ], [ 115.446243840770293, 23.177208449351479 ], [ 115.980699136359078, 23.818951748460766 ], [ 116.474632403949755, 24.485829739742698 ] ] } }
+]
+}

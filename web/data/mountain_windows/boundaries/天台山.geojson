@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "天台山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "天台山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 120.932804775535487, 29.23242402616858 ], [ 121.148423124295789, 29.3790517173239 ], [ 121.468325565327476, 29.636498480733675 ], [ 121.60080132247019, 29.704185347553597 ], [ 121.750350382433581, 29.751369200734494 ] ] } }
+]
+}

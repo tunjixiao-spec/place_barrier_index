@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "云开大山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "云开大山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 111.300761984584142, 23.642379764785773 ], [ 111.317153747623763, 23.938409024328031 ], [ 111.526341554703635, 24.343138910797226 ] ] } }
+]
+}

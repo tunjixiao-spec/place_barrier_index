@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "方斗山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "方斗山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 107.666116172846685, 29.739544349026119 ], [ 108.057710996755986, 30.154976796215252 ], [ 108.542741292555931, 30.732851518145669 ], [ 108.649108100690469, 30.830253773248018 ] ] } }
+]
+}

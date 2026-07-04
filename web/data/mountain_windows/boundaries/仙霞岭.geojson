@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "仙霞岭",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "仙霞岭", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 118.689083818478409, 28.331050124134276 ], [ 119.169507107117042, 28.612112244854817 ], [ 119.316880098099617, 28.673396631874862 ], [ 119.509469698589939, 28.737213011013456 ], [ 119.822935924888341, 28.804378870003557 ], [ 119.96026369263727, 28.815570829859205 ] ] } }
+]
+}

@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "锦屏山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "锦屏山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 101.764458085303247, 27.38839606790313 ], [ 101.839629963896996, 27.647043669533947 ], [ 101.840586312773567, 27.979108279527395 ], [ 101.94291766074052, 28.152203050774631 ] ] } }
+]
+}

@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "艾尔宾山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "艾尔宾山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 84.237483661290042, 43.007763832979741 ], [ 84.8700316444355, 42.757676642204103 ], [ 85.422294454013965, 42.626559290215276 ], [ 85.932993161962827, 42.561138645286881 ], [ 86.45452413293728, 42.566793415866535 ] ] } }
+]
+}

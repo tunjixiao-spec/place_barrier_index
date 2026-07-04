@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "老爷岭",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "老爷岭", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 128.807683859415391, 43.282279802197536 ], [ 128.93248599416134, 43.395532192366097 ], [ 129.19200770011264, 43.539892192651266 ], [ 129.472870141017069, 43.771756347786727 ], [ 130.19375942121502, 44.568566572267017 ], [ 130.553458506678993, 45.346864285797025 ] ] } }
+]
+}

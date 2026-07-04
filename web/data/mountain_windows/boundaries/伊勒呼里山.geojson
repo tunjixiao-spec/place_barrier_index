@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "伊勒呼里山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "伊勒呼里山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 122.745956358696844, 51.505316208628564 ], [ 123.050606189274532, 51.421808962938186 ], [ 123.373358937485065, 51.368531223829493 ], [ 123.785212146039072, 51.368026951233439 ], [ 124.46728370072239, 51.481084242019449 ], [ 124.912297003746275, 51.619170393116377 ] ] } }
+]
+}

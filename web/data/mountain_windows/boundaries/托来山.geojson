@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "托来山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "托来山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 97.931827666704947, 39.290369229708041 ], [ 98.19527677303924, 39.06165608372261 ], [ 98.646419071263992, 38.783600820870909 ], [ 100.281606262154128, 37.997193339050121 ], [ 100.756986874687001, 37.822257441838367 ], [ 100.924480844989219, 37.740137817128463 ] ] } }
+]
+}

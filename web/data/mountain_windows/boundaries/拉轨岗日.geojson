@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "拉轨岗日",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "拉轨岗日", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 85.641814845284657, 28.907969771596694 ], [ 87.305191871100263, 28.850768769807754 ], [ 88.25136955091574, 28.608115934992941 ], [ 89.244399253393951, 28.238611946670524 ] ] } }
+]
+}

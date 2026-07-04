@@ -1,0 +1,11 @@
+﻿/.venv/
+/.idea/
+/data/
+/output/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.bak
+.DS_Store
+Thumbs.db

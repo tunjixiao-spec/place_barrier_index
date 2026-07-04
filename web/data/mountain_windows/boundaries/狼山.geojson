@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "狼山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "狼山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 106.155386991157272, 40.482876035319769 ], [ 106.618177625387105, 40.999726172658391 ], [ 106.929006042883174, 41.208696265733749 ], [ 107.460330670336248, 41.360878664856862 ], [ 107.85587946365132, 41.406371505705955 ], [ 108.093369591562137, 41.408967350136109 ] ] } }
+]
+}

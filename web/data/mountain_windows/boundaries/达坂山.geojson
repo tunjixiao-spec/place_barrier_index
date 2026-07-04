@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "达坂山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "达坂山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 100.931230795006769, 37.564895363175673 ], [ 101.437530398928402, 37.328491956483631 ], [ 101.78235962197968, 37.190829072956085 ], [ 101.989088574776076, 37.071528608069578 ], [ 102.557815156875407, 36.6557462019816 ], [ 102.789545743304444, 36.441471027273785 ] ] } }
+]
+}

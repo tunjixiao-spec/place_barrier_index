@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "大凉山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "大凉山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 103.097506925724005, 28.136127042497453 ], [ 103.524780398373593, 28.531296449356891 ], [ 103.870581169057658, 29.008021507106552 ] ] } }
+]
+}

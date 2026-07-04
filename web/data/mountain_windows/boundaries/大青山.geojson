@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "大青山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "大青山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 110.315126963334905, 40.583468718832663 ], [ 111.000407700741377, 40.72540645162232 ], [ 111.443351996694986, 40.834689792460097 ], [ 112.187137616233997, 41.074184783288388 ] ] } }
+]
+}

@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "长白山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "长白山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 127.90591694073791, 41.586123357567793 ], [ 128.086830347798838, 41.954969034113695 ], [ 128.660889865803853, 42.173860975018314 ], [ 129.09382670779118, 42.406704646070544 ], [ 129.391079415347974, 42.688827489485845 ], [ 129.842875745281788, 43.170212095984049 ] ] } }
+]
+}

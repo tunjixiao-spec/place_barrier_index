@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "武功山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "武功山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 113.306845010278764, 26.709005670424407 ], [ 113.758343623866267, 27.296292939180105 ], [ 114.258898552934198, 27.512245152270566 ], [ 114.694021771248927, 27.772043947251653 ] ] } }
+]
+}

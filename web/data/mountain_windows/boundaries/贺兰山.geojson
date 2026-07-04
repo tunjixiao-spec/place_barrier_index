@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "贺兰山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "贺兰山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 105.952809330920729, 38.356391055697777 ], [ 105.949237615728777, 38.644320518247937 ], [ 106.00524830954474, 38.855981398956949 ], [ 106.264271180704313, 39.130679440816252 ], [ 106.507105459997661, 39.279738292054695 ], [ 106.7268638735504, 39.360564320291139 ] ] } }
+]
+}

@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "泰山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "泰山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 116.346758561767857, 36.239049152116898 ], [ 117.099703218457762, 36.463930014547927 ], [ 117.543417529115828, 36.415669755107459 ], [ 117.828878017427925, 36.407773640426996 ] ] } }
+]
+}

@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "大盘山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "大盘山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 120.155179661279689, 28.531218640644493 ], [ 120.563486925770206, 29.045961429500835 ], [ 120.789461957857554, 29.182285964938472 ] ] } }
+]
+}

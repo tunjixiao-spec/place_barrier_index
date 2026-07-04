@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "幕阜山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "幕阜山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 113.536856161584382, 28.801171410192552 ], [ 113.97115796934186, 29.102380380909196 ], [ 114.220999550424125, 29.231897569266042 ], [ 114.753319746889886, 29.378858734756442 ], [ 115.16293945870062, 29.509995010492226 ] ] } }
+]
+}

@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "大雪山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "大雪山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 101.864007606795454, 29.312933904836207 ], [ 101.838202184068678, 29.718672106355349 ], [ 101.742258508320901, 30.10771982967486 ], [ 101.646772380784483, 30.34422338368616 ], [ 101.080395968861453, 31.148009819149149 ], [ 100.682568566862429, 31.580760455912895 ] ] } }
+]
+}

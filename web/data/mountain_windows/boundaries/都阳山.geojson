@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "都阳山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "都阳山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 106.978427277900622, 24.775066075627837 ], [ 107.102375833395683, 24.629317386347232 ], [ 107.281789940118244, 24.47719462509485 ], [ 107.310634575851353, 24.359419793671691 ], [ 107.402481540876465, 24.132995734643789 ], [ 107.415864484414755, 23.938408771301145 ] ] } }
+]
+}

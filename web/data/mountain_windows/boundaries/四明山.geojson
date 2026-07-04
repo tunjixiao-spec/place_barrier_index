@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "四明山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "四明山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 120.887673960383196, 29.472112877817441 ], [ 121.089221279392689, 29.695127340408014 ], [ 121.334266313063026, 29.92580884084979 ] ] } }
+]
+}

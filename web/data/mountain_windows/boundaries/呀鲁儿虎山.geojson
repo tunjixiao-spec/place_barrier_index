@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "呀鲁儿虎山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "呀鲁儿虎山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 119.33660233691262, 41.335379883912147 ], [ 119.606393127327451, 41.466048250411006 ], [ 120.314211734093803, 41.87056102080642 ], [ 120.747564146372383, 42.293243384160732 ], [ 120.980874355748981, 42.619882405368969 ] ] } }
+]
+}

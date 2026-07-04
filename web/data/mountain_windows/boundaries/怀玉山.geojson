@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "怀玉山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "怀玉山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 117.134713670902116, 28.521965220236194 ], [ 117.500841917826904, 28.731477038925288 ], [ 117.988060846577142, 28.93498726653414 ], [ 118.24415736381205, 29.078290015290673 ] ] } }
+]
+}

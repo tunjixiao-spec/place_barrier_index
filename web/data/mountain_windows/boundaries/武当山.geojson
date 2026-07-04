@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "武当山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "武当山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 109.313568273626359, 32.587218154998759 ], [ 110.140311047360868, 32.596508966351351 ], [ 110.409584247785972, 32.560527710743955 ], [ 110.959987594880857, 32.411609244129188 ], [ 111.376096193894611, 32.261035132308308 ] ] } }
+]
+}

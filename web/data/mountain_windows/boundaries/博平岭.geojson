@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "博平岭",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "博平岭", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 117.286995935823569, 24.718669854215634 ], [ 117.426986123993586, 25.188360666652304 ] ] } }
+]
+}

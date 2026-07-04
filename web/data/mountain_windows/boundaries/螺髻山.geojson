@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "螺髻山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "螺髻山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 102.548312027148896, 26.928049678641816 ], [ 102.462651430939005, 27.284968829516316 ], [ 102.405544366799077, 27.375388347737871 ], [ 102.286571316507562, 27.72754857660081 ] ] } }
+]
+}

@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "玛依勒山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "玛依勒山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 82.823426431172081, 45.507991693966623 ], [ 83.038054201619047, 45.520576156129501 ], [ 83.242498222200979, 45.569114661368964 ], [ 83.489410562686686, 45.673794743698238 ], [ 83.779567067494554, 45.82851804712525 ], [ 83.922513297407065, 45.877045596513824 ] ] } }
+]
+}

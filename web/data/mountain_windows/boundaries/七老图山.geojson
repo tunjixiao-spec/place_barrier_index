@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "七老图山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "七老图山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 118.389623022567179, 41.25741422672828 ], [ 118.269893200037558, 41.58809601199092 ], [ 118.158442924831817, 41.776770831081713 ], [ 117.920875890397269, 41.937115638932219 ], [ 117.639928231856942, 42.189345333951394 ], [ 117.543409863764339, 42.354811666615845 ] ] } }
+]
+}

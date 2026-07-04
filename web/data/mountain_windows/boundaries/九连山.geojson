@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "九连山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "九连山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 113.614571898626934, 23.480963535576432 ], [ 113.782007995502482, 23.619108241106233 ], [ 113.973245910019244, 23.829245708705297 ], [ 114.515855113586312, 24.296891256924994 ], [ 114.799490317203436, 24.518916216541314 ], [ 115.040942272082134, 24.634402752607425 ] ] } }
+]
+}

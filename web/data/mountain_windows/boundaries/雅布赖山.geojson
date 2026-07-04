@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "雅布赖山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "雅布赖山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 104.840170971527527, 40.189274014867628 ], [ 105.035622147920307, 40.210261531129206 ], [ 105.451851285452193, 40.203457767389672 ], [ 105.712415079712684, 40.277218078051035 ] ] } }
+]
+}

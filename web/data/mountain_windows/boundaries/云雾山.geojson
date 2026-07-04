@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "云雾山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "云雾山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 111.030464814669529, 21.734018079734927 ], [ 111.645288157845982, 22.312015357547576 ], [ 112.029812182141796, 22.74823779307788 ], [ 112.169065526215064, 22.859430325095811 ] ] } }
+]
+}

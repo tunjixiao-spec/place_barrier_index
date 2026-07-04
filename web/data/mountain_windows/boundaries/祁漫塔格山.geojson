@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "祁漫塔格山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "祁漫塔格山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 89.456984630593993, 37.817279934569598 ], [ 91.217410963715039, 37.051563897263101 ], [ 91.837593622088974, 36.877445802388628 ] ] } }
+]
+}

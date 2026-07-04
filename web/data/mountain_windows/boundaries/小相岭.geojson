@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "小相岭",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "小相岭", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 102.272591983098309, 28.206415104024192 ], [ 102.44580904282769, 29.000625020236839 ] ] } }
+]
+}

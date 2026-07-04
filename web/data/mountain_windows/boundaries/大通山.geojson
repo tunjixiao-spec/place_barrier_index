@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "大通山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "大通山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 99.250806208012932, 38.014049637637136 ], [ 100.058352195244368, 37.811696355994549 ], [ 100.220736004707518, 37.713941593554857 ], [ 100.690017360635991, 37.357072195748749 ] ] } }
+]
+}

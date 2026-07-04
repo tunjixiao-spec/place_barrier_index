@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "霍拉山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "霍拉山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 83.313635605241288, 42.542998805808217 ], [ 84.035702867814152, 42.460202820682419 ], [ 84.466079581776654, 42.376325301810603 ], [ 85.057679456294778, 42.191063492292805 ], [ 85.450037910501834, 42.030413959297952 ], [ 85.670281542000069, 41.962265758289675 ] ] } }
+]
+}

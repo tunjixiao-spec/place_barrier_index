@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "阿尔金山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "阿尔金山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 86.220763726757895, 37.755770774532451 ], [ 86.856036448341484, 37.791135882417031 ], [ 89.121841890406301, 38.283622979948788 ], [ 89.888891320801648, 38.461031239309293 ], [ 92.371494229987576, 39.068412853037955 ], [ 94.241166965848834, 39.3938399710485 ] ] } }
+]
+}

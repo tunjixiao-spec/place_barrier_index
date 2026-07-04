@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "白于山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "白于山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 107.255778882960158, 37.495866919229869 ], [ 107.693962383419645, 37.364989287355733 ], [ 108.187983882664298, 37.290911483928596 ], [ 108.615469478207558, 37.289180938399447 ], [ 108.763009570606755, 37.314452317663473 ] ] } }
+]
+}

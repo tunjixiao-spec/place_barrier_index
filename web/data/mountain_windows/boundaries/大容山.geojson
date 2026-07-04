@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "大容山",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "boundary_name": "大容山", "boundary_type": "mountain" }, "geometry": { "type": "LineString", "coordinates": [ [ 110.347228076360494, 22.841244826931 ], [ 110.456779089174802, 22.918379887397631 ], [ 110.499313081715016, 22.972998871609786 ], [ 110.669341243276889, 23.258314770085228 ], [ 110.712577162009353, 23.427348064786443 ] ] } }
+]
+}
