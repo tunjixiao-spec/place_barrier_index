@@ -8,12 +8,21 @@ const DATA_PATHS = {
   segmentsTable: `${DATA_ROOT}/mountain_segments_table.json`,
 };
 
+// 窗口地图分级口径：
+// 使用“所有山脉 + 主判读侧宽 + 可靠窗口”的 local_CBI 统一计算 4 类 Jenks 自然断点。
+// 4 类来自 06b 原始 local_CBI 分级逻辑：k = min(4, len(unique_values))。
+const WINDOW_CBI_NATURAL_CLASS_COUNT = 4;
+const WINDOW_CBI_COLORS = ["#b7c7d6", "#6aaed6", "#f2b84b", "#8b1e2d"];
+const WINDOW_CBI_LEVEL_LABELS = ["很弱", "弱", "较强", "强"];
+
 const state = {
   index: null,
   summaryRows: [],
   sideWidthRows: [],
   windowRows: [],
   segmentRows: [],
+  windowCbiNaturalBreaks: [],
+  windowCbiBreakSourceCount: 0,
   geoCache: new Map(),
   map: null,
   boundaryLayer: null,
@@ -151,6 +160,7 @@ async function loadInitialData() {
     state.sideWidthRows = Array.isArray(sideWidthRows) ? sideWidthRows : [];
     state.windowRows = Array.isArray(windowRows) ? windowRows : [];
     state.segmentRows = Array.isArray(segmentRows) ? segmentRows : [];
+    computeWindowCbiNaturalBreaks();
 
     fillMountainOptions();
     elements.queryButton.disabled = false;
@@ -212,6 +222,119 @@ function getPrimaryWindowRows(name) {
   return state.windowRows
     .filter((row) => row.boundary_name === name && Number(row.side_width_km) === width)
     .sort((a, b) => Number(a.center_station_km) - Number(b.center_station_km));
+}
+
+function isTruthy(value) {
+  return value === true || value === "true" || value === "True" || value === 1 || value === "1";
+}
+
+function isCbiMetric(metric) {
+  return metric === "CBI" || metric === "small_CBI" || metric === "big_CBI";
+}
+
+function computeWindowCbiNaturalBreaks() {
+  const primaryWidthByMountain = new Map();
+  state.summaryRows.forEach((row) => {
+    if (!row.boundary_name) return;
+    const width = Number(row.primary_side_width_km ?? row.side_width_km);
+    if (Number.isFinite(width)) {
+      primaryWidthByMountain.set(row.boundary_name, width);
+    }
+  });
+
+  const values = state.windowRows
+    .filter((row) => {
+      const primaryWidth = primaryWidthByMountain.get(row.boundary_name);
+      const sideWidth = Number(row.side_width_km);
+      const value = Number(row.CBI);
+      return Number.isFinite(primaryWidth)
+        && Number.isFinite(sideWidth)
+        && Math.abs(sideWidth - primaryWidth) < 1e-6
+        && isTruthy(row.reliable_window)
+        && Number.isFinite(value);
+    })
+    .map((row) => Number(row.CBI))
+    .sort((a, b) => a - b);
+
+  state.windowCbiBreakSourceCount = values.length;
+  state.windowCbiNaturalBreaks = jenksNaturalBreaks(values, WINDOW_CBI_NATURAL_CLASS_COUNT);
+
+  console.info(
+    "window local_CBI Jenks breaks from primary reliable windows:",
+    state.windowCbiNaturalBreaks,
+    "n=",
+    state.windowCbiBreakSourceCount
+  );
+}
+
+function jenksNaturalBreaks(values, maxClasses = 4) {
+  const sorted = values
+    .map(Number)
+    .filter(Number.isFinite)
+    .sort((a, b) => a - b);
+
+  if (!sorted.length) return [];
+
+  const uniqueCount = new Set(sorted.map((value) => value.toFixed(12))).size;
+  const k = Math.min(maxClasses, uniqueCount, sorted.length);
+
+  if (k <= 1) {
+    return [sorted[0], sorted[sorted.length - 1]];
+  }
+
+  const n = sorted.length;
+  const lower = Array.from({ length: n + 1 }, () => Array(k + 1).fill(0));
+  const variance = Array.from({ length: n + 1 }, () => Array(k + 1).fill(Infinity));
+
+  for (let i = 1; i <= k; i += 1) {
+    lower[1][i] = 1;
+    variance[1][i] = 0;
+  }
+
+  for (let l = 2; l <= n; l += 1) {
+    let sum = 0;
+    let sumSquares = 0;
+    let weight = 0;
+    let currentVariance = 0;
+
+    for (let m = 1; m <= l; m += 1) {
+      const lowerClassLimit = l - m + 1;
+      const value = sorted[lowerClassLimit - 1];
+      sum += value;
+      sumSquares += value * value;
+      weight += 1;
+      currentVariance = sumSquares - (sum * sum) / weight;
+      const previousIndex = lowerClassLimit - 1;
+
+      if (previousIndex === 0) continue;
+
+      for (let j = 2; j <= k; j += 1) {
+        const candidate = currentVariance + variance[previousIndex][j - 1];
+        if (variance[l][j] >= candidate) {
+          lower[l][j] = lowerClassLimit;
+          variance[l][j] = candidate;
+        }
+      }
+    }
+
+    lower[l][1] = 1;
+    variance[l][1] = currentVariance;
+  }
+
+  const breaks = Array(k + 1).fill(0);
+  breaks[0] = sorted[0];
+  breaks[k] = sorted[n - 1];
+
+  let count = k;
+  let idx = n;
+  while (count >= 2) {
+    const splitIndex = Math.max(0, Math.min(n - 1, lower[idx][count] - 2));
+    breaks[count - 1] = sorted[splitIndex];
+    idx = lower[idx][count] - 1;
+    count -= 1;
+  }
+
+  return breaks;
 }
 
 function getPrimarySegmentRows(name) {
@@ -336,11 +459,36 @@ function getValueColor(value, metric) {
     if (value >= 0.10) return "#f2b84b";
     return "#2f8f6b";
   }
-  if (value >= 0.25) return "#8b1e2d";
-  if (value >= 0.15) return "#d05d2d";
-  if (value >= 0.08) return "#f2b84b";
-  if (value >= 0.03) return "#6aaed6";
-  return "#b7c7d6";
+
+  if (metric === "sample_balance") {
+    if (value >= 0.80) return "#2f8f6b";
+    if (value >= 0.60) return "#6aaed6";
+    if (value >= 0.40) return "#f2b84b";
+    return "#d05d2d";
+  }
+
+  if (isCbiMetric(metric)) {
+    return getWindowCbiNaturalColor(value);
+  }
+
+  return "#6aaed6";
+}
+
+function getWindowCbiNaturalClassIndex(value) {
+  const breaks = state.windowCbiNaturalBreaks;
+  if (!Number.isFinite(value) || !breaks || breaks.length < 2) return 0;
+
+  const upperBreaks = breaks.slice(1);
+  for (let i = 0; i < upperBreaks.length; i += 1) {
+    if (value <= upperBreaks[i] || i === upperBreaks.length - 1) {
+      return Math.max(0, Math.min(i, WINDOW_CBI_COLORS.length - 1));
+    }
+  }
+  return WINDOW_CBI_COLORS.length - 1;
+}
+
+function getWindowCbiNaturalColor(value) {
+  return WINDOW_CBI_COLORS[getWindowCbiNaturalClassIndex(value)];
 }
 
 function bindWindowPopup(feature, layer) {
@@ -350,7 +498,8 @@ function bindWindowPopup(feature, layer) {
       <strong>移动窗口 #${escapeHtml(p.window_id ?? "—")}</strong>
       <div>station：${formatNumber(p.start_station_km)} - ${formatNumber(p.end_station_km)} km</div>
       <div>CBI：${formatNumber(p.CBI)} | small：${formatNumber(p.small_CBI)} | big：${formatNumber(p.big_CBI)}</div>
-      <div>等级：${escapeHtml(p.CBI_level || "—")} | 可靠：${formatBool(p.reliable_window)}</div>
+      <div>分位数等级：${escapeHtml(p.CBI_quantile_level || p.CBI_level || "—")} | 自然断点等级：${escapeHtml(p.CBI_natural_level || "—")}</div>
+      <div>分级一致：${formatBool(p.CBI_level_agreement)} | 可靠：${formatBool(p.reliable_window)}</div>
       <div>A/B 点数：${escapeHtml(p.n_left ?? "—")} / ${escapeHtml(p.n_right ?? "—")}</div>
       <div>主导社区：A=${escapeHtml(p.top_A || "—")}，B=${escapeHtml(p.top_B || "—")}</div>
       <div>clip 风险：${escapeHtml(p.clip_risk_level || "—")}；station：${escapeHtml(p.station_reference_quality || "—")}</div>
@@ -392,20 +541,27 @@ function bindPointPopup(feature, layer) {
 
 function updateLegend() {
   const metric = elements.windowColorSelect.value;
-  const labels = metric === "window_membership_change_ratio"
-    ? [
-        ["低 < 0.10", "#2f8f6b"],
-        ["中 0.10-0.25", "#f2b84b"],
-        ["偏高 0.25-0.50", "#d05d2d"],
-        ["高 ≥ 0.50", "#8b1e2d"],
-      ]
-    : [
-        ["很低 < 0.03", "#b7c7d6"],
-        ["低 0.03-0.08", "#6aaed6"],
-        ["中 0.08-0.15", "#f2b84b"],
-        ["较高 0.15-0.25", "#d05d2d"],
-        ["高 ≥ 0.25", "#8b1e2d"],
-      ];
+  let labels;
+
+  if (metric === "window_membership_change_ratio") {
+    labels = [
+      ["低 < 0.10", "#2f8f6b"],
+      ["中 0.10-0.25", "#f2b84b"],
+      ["偏高 0.25-0.50", "#d05d2d"],
+      ["高 ≥ 0.50", "#8b1e2d"],
+    ];
+  } else if (metric === "sample_balance") {
+    labels = [
+      ["低 < 0.40", "#d05d2d"],
+      ["中 0.40-0.60", "#f2b84b"],
+      ["较好 0.60-0.80", "#6aaed6"],
+      ["好 ≥ 0.80", "#2f8f6b"],
+    ];
+  } else if (isCbiMetric(metric)) {
+    labels = buildWindowCbiNaturalLegend(metric);
+  } else {
+    labels = [["当前指标", "#6aaed6"]];
+  }
 
   elements.legendContent.innerHTML = labels.map(([label, color]) => `
     <div class="legend-item">
@@ -413,6 +569,32 @@ function updateLegend() {
       <span>${label}</span>
     </div>
   `).join("");
+}
+
+function buildWindowCbiNaturalLegend(metric) {
+  const breaks = state.windowCbiNaturalBreaks;
+  if (!breaks || breaks.length < 2) {
+    return [["自然断点未生成", "#b7c7d6"]];
+  }
+
+  const metricLabel = metric === "CBI" ? "local_CBI" : metric;
+  const rows = [];
+  for (let i = 0; i < breaks.length - 1; i += 1) {
+    const left = formatNumber(breaks[i]);
+    const right = formatNumber(breaks[i + 1]);
+    const level = WINDOW_CBI_LEVEL_LABELS[i] || `第 ${i + 1} 类`;
+    const prefix = i === 0 ? `${left}-${right}` : `>${left}-${right}`;
+    rows.push([
+      `${level} ${prefix}`,
+      WINDOW_CBI_COLORS[Math.min(i, WINDOW_CBI_COLORS.length - 1)],
+    ]);
+  }
+
+  rows.push([
+    `${metricLabel} 自然断点：主侧宽可靠窗口 n=${state.windowCbiBreakSourceCount}`,
+    "transparent",
+  ]);
+  return rows;
 }
 
 function renderMetrics(name) {
@@ -574,7 +756,7 @@ function renderInterpretation(name) {
   if (!row) {
     const meta = findMountainMeta(name) || {};
     elements.interpretationText.textContent =
-      `${name} 已从 raw 山脉 shp 中导出山脉线和地名点，可在地图上查看其两侧地名特征。`
+      `${name} 已从 raw 山脉 shp 中导出山脉线和地名点，可在地图上查看空间分布。`
       + `但当前 06b 结果表中该山脉未形成有效 moving-window CBI，通常意味着两侧样本不足或可靠窗口不足。`
       + `因此网页不强行给出 mountain_CBI 数值，以免把低证据区域误读为可靠分隔。`
       + `当前网页已加载地名点 ${meta.n_place_points || 0} 个。`;
@@ -582,14 +764,15 @@ function renderInterpretation(name) {
   }
 
   const segmentText = Number(row.n_contrast_segments || 0) > 0
-    ? `识别出 ${row.n_contrast_segments} 个地名文化社区分异连续段，说明局部山段存在连续的两侧社区结构差异。`
-    : "未识别出满足连续合并条件的分异连续段，但这不等于山脉尺度文化分隔强度低，应结合 local_signal_CBI 与覆盖比例解释。";
+    ? `识别到 ${row.n_contrast_segments} 条地名文化社区分异连续段，说明局部山段存在连续的两侧社区结构差异。`
+    : "未识别到满足合并条件的分异连续段，但这不代表山脉尺度文化分隔强度低，应结合 local_signal_CBI 与覆盖比例解释。";
 
   elements.interpretationText.textContent =
-    `${name} 的 mountain_CBI 为 ${formatNumber(row.mountain_CBI)}，等级为“${row.mountain_CBI_level || "—"}”；`
-    + `local_signal_CBI 为 ${formatNumber(row.local_signal_CBI)}，等级为“${row.local_signal_level || "—"}”。`
-    + `当前主判读侧宽为 ${formatNumber(row.primary_side_width_km, 0)} km，可靠覆盖比例为 ${formatPercent(row.reliable_coverage_ratio)}，`
-    + `高 CBI 覆盖比例为 ${formatPercent(row.high_CBI_coverage_ratio)}，证据质量为“${row.evidence_quality || "—"}”。`
+    `${name} 的 mountain_CBI 为 ${formatNumber(row.mountain_CBI)}，rank 为 ${escapeHtml(row.mountain_CBI_rank || "—")}；`
+    + `自然断点展示等级为“${row.mountain_CBI_natural_level || row.mountain_CBI_level || "—"}”，证据质量为“${row.evidence_quality || "—"}”。`
+    + `整体强弱判断以 mountain_CBI、rank 和 evidence_quality 为主，不以窗口地图颜色直接替代。`
+    + ` local_signal_CBI 为 ${formatNumber(row.local_signal_CBI)}，当前主判读侧宽为 ${formatNumber(row.primary_side_width_km, 0)} km；`
+    + `可靠覆盖比例为 ${formatPercent(row.reliable_coverage_ratio)}，高 CBI 覆盖比例为 ${formatPercent(row.high_CBI_coverage_ratio)}。`
     + `${segmentText} clip 风险为“${row.clip_risk_level || "—"}”，station 线性参考质量为“${row.station_reference_quality || "—"}”。`;
 }
 
