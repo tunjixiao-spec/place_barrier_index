@@ -252,6 +252,14 @@ LOCAL_CBI_WINDOW_CORE_COLUMNS = [
 
     "CBI_level_no",
     "CBI_level",
+    "CBI_level_method",
+    "CBI_quantile_level_no",
+    "CBI_quantile_level",
+    "CBI_quantile_breaks",
+    "CBI_natural_level_no",
+    "CBI_natural_level",
+    "CBI_natural_breaks",
+    "CBI_level_agreement",
     "clip_membership_ok",
     "valid_contrast_window",
     "distribution_contrast_window",
@@ -349,6 +357,11 @@ MOUNTAIN_STRENGTH_CORE_COLUMNS = [
 
     "mountain_CBI",
     "mountain_CBI_level",
+    "mountain_CBI_level_method",
+    "mountain_CBI_natural_level",
+    "mountain_CBI_natural_level_no",
+    "mountain_CBI_natural_breaks",
+    "mountain_CBI_fixed_level",
     "mountain_CBI_rank",
     "mountain_CBI_confidence",
     "evidence_quality",
@@ -627,6 +640,9 @@ def classify_station_reference_quality(mean_change, max_change):
 
 
 def cbi_level_from_score(x):
+    """
+    固定阈值等级仅作辅助参考，不再作为 mountain_CBI 的主展示等级。
+    """
     if x >= 0.75:
         return "强"
     if x >= 0.50:
@@ -634,6 +650,123 @@ def cbi_level_from_score(x):
     if x >= 0.25:
         return "中等"
     return "弱"
+
+
+def cbi_level_names(k):
+    """
+    根据实际可分等级数返回等级名称。
+    分位数和自然断点共用这套中文标签，便于横向对照。
+    """
+    level_names_4 = {
+        1: "很弱",
+        2: "弱",
+        3: "较强",
+        4: "强",
+    }
+
+    level_names_3 = {
+        1: "弱",
+        2: "较强",
+        3: "强",
+    }
+
+    level_names_2 = {
+        1: "弱",
+        2: "强",
+    }
+
+    if k >= 4:
+        return level_names_4
+    if k == 3:
+        return level_names_3
+    if k == 2:
+        return level_names_2
+    return {1: "单一等级"}
+
+
+def format_breaks_for_output(breaks):
+    if breaks is None or len(breaks) == 0:
+        return ""
+    return "|".join(f"{float(x):.6f}" for x in breaks if pd.notna(x))
+
+
+def jenks_natural_breaks(values, max_classes=4):
+    """
+    使用 Jenks natural breaks 计算自然断点。
+
+    说明：
+    1. 不调用 mapclassify.NaturalBreaks，避免部分 Windows / Anaconda GIS 环境
+       因 sklearn / 原生库触发不可捕获崩溃。
+    2. 自然断点只用于等级展示和敏感性对照，不改变 local_CBI / mountain_CBI 数值。
+    """
+    vals = pd.Series(values).dropna().astype(float)
+    vals = vals[np.isfinite(vals)].sort_values().to_numpy()
+
+    if len(vals) == 0:
+        return []
+
+    unique_vals = np.unique(vals)
+    k = int(min(max_classes, len(unique_vals), len(vals)))
+
+    if k <= 1:
+        return [float(vals[0]), float(vals[-1])]
+
+    n = len(vals)
+    lower = np.zeros((n + 1, k + 1), dtype=int)
+    var = np.full((n + 1, k + 1), np.inf, dtype=float)
+
+    for i in range(1, k + 1):
+        lower[1, i] = 1
+        var[1, i] = 0.0
+
+    for l in range(2, n + 1):
+        s1 = 0.0
+        s2 = 0.0
+        w = 0.0
+        current_var = 0.0
+
+        for m in range(1, l + 1):
+            i3 = l - m + 1
+            val = vals[i3 - 1]
+            s1 += val
+            s2 += val * val
+            w += 1.0
+            current_var = s2 - (s1 * s1) / w
+            i4 = i3 - 1
+
+            if i4 == 0:
+                continue
+
+            for j in range(2, k + 1):
+                candidate_var = current_var + var[i4, j - 1]
+                if var[l, j] >= candidate_var:
+                    lower[l, j] = i3
+                    var[l, j] = candidate_var
+
+        lower[l, 1] = 1
+        var[l, 1] = current_var
+
+    breaks = [0.0] * (k + 1)
+    breaks[0] = float(vals[0])
+    breaks[k] = float(vals[-1])
+
+    count_num = k
+    idx = n
+    while count_num >= 2:
+        split_idx = int(lower[idx, count_num] - 2)
+        split_idx = max(0, min(split_idx, n - 1))
+        breaks[count_num - 1] = float(vals[split_idx])
+        idx = int(lower[idx, count_num] - 1)
+        count_num -= 1
+
+    return breaks
+
+
+def assign_level_by_upper_breaks(value, upper_breaks, k):
+    if pd.isna(value) or upper_breaks is None or len(upper_breaks) == 0:
+        return 0
+    level_no = int(np.searchsorted(upper_breaks, float(value), side="right") + 1)
+    return max(1, min(level_no, int(k)))
 
 
 def filter_points_near_boundary(point_gdf, segment_gdf, max_side_width_m):
@@ -729,6 +862,10 @@ def write_run_metadata(mountain_strength_df, side_width_summary_df):
                     "local_signal_level",
                     "mountain_CBI",
                     "mountain_CBI_level",
+                    "mountain_CBI_level_method",
+                    "mountain_CBI_natural_level",
+                    "mountain_CBI_fixed_level",
+                    "mountain_CBI_rank",
                     "mountain_CBI_confidence",
                     "evidence_quality",
                 ]
@@ -865,7 +1002,12 @@ def add_mountain_interpretation(out):
         n_reliable = int(row.get("n_reliable_windows", 0) or 0)
         n_segments = int(row.get("n_contrast_segments", 0) or 0)
         mountain_cbi = float(row.get("mountain_CBI", 0) or 0)
-        mountain_level = row.get("mountain_CBI_level", "未评级")
+        mountain_level = row.get(
+            "mountain_CBI_natural_level",
+            row.get("mountain_CBI_level", "未评级")
+        )
+        mountain_rank = row.get("mountain_CBI_rank", "")
+        fixed_level = row.get("mountain_CBI_fixed_level", "辅助未评级")
         local_signal = float(row.get("local_signal_CBI", 0) or 0)
         local_signal_level = row.get("local_signal_level", "未评级")
         primary_width = row.get("primary_side_width_km", row.get("side_width_km", ""))
@@ -886,7 +1028,8 @@ def add_mountain_interpretation(out):
             result_text = (
                 f"{name} 的主判读侧宽为 {primary_width} km，"
                 f"mountain_CBI 为 {mountain_cbi:.4f}，"
-                f"相对等级为“{mountain_level}”，证据质量为“{evidence}”，"
+                f"rank 为 {mountain_rank}，自然断点展示等级为“{mountain_level}”，"
+                f"固定阈值辅助等级为“{fixed_level}”，证据质量为“{evidence}”，"
                 f"local_signal_CBI 为 {local_signal:.4f}（{local_signal_level}），"
                 f"可靠覆盖比例为 {reliable_coverage:.3f}，"
                 f"高 local_CBI 覆盖比例为 {high_coverage:.3f}，"
@@ -1609,8 +1752,18 @@ def evaluate_mountain_local_windows(point_gdf, mountain_gdf, boundary_name, name
 def add_local_cbi_levels(window_df):
     df = window_df.copy()
 
+    # CBI_level / CBI_level_no 保持为“分位数稳定基准”的兼容字段。
+    # 自然断点结果另写入 CBI_natural_*，用于敏感性对照。
     df["CBI_level_no"] = 0
     df["CBI_level"] = "未评级"
+    df["CBI_level_method"] = "quantile_stable_baseline"
+    df["CBI_quantile_level_no"] = 0
+    df["CBI_quantile_level"] = "未评级"
+    df["CBI_quantile_breaks"] = ""
+    df["CBI_natural_level_no"] = 0
+    df["CBI_natural_level"] = "未评级"
+    df["CBI_natural_breaks"] = ""
+    df["CBI_level_agreement"] = False
     df["valid_contrast_window"] = False
     df["distribution_contrast_window"] = False
     df["local_CBI_hotspot_window"] = False
@@ -1675,6 +1828,13 @@ def add_local_cbi_levels(window_df):
     if len(unique_values) == 1:
         df.loc[mask, "CBI_level_no"] = 1
         df.loc[mask, "CBI_level"] = "单一等级"
+        df.loc[mask, "CBI_quantile_level_no"] = 1
+        df.loc[mask, "CBI_quantile_level"] = "单一等级"
+        df.loc[mask, "CBI_quantile_breaks"] = format_breaks_for_output(unique_values)
+        df.loc[mask, "CBI_natural_level_no"] = 1
+        df.loc[mask, "CBI_natural_level"] = "单一等级"
+        df.loc[mask, "CBI_natural_breaks"] = format_breaks_for_output(unique_values)
+        df.loc[mask, "CBI_level_agreement"] = True
 
         df["valid_contrast_window"] = (
             (df["reliable_window"] == True)
@@ -1697,39 +1857,23 @@ def add_local_cbi_levels(window_df):
 
     k = min(4, len(unique_values))
 
-    # 这里不使用 mapclassify.NaturalBreaks。
-    # 原因：NaturalBreaks 会调用 sklearn KMeans，在部分 Windows / Anaconda
-    # GIS 环境中可能触发原生崩溃，普通 try/except 无法捕获。
-    # 分位数分级只影响 local_CBI_level 标签，不改变任何 CBI 数值。
+    # local_CBI 分级口径：
+    # 1. 分位数分级作为稳定基准，用于 valid_contrast_window 与连续段识别；
+    # 2. 自然断点分级作为敏感性对照，检查高值窗口是否由数据内部分布自然分离。
+    # 两者都只改变等级标签，不改变 CBI 数值。
     quantiles = np.linspace(0, 1, k + 1)[1:]
-    bins = np.quantile(values, quantiles)
+    quantile_bins = np.quantile(values, quantiles)
+    natural_breaks = jenks_natural_breaks(values, max_classes=4)
+    natural_upper_bins = natural_breaks[1:] if len(natural_breaks) > 1 else natural_breaks
+    natural_k = max(1, len(natural_upper_bins))
 
-    log(f"local_CBI 分位数分级阈值：{bins}")
+    log(f"local_CBI 分位数分级阈值：{quantile_bins}")
+    log(f"local_CBI 自然断点敏感性阈值：{natural_breaks}")
 
-    level_names_4 = {
-        1: "很弱",
-        2: "弱",
-        3: "较强",
-        4: "强",
-    }
-
-    level_names_3 = {
-        1: "弱",
-        2: "较强",
-        3: "强",
-    }
-
-    level_names_2 = {
-        1: "弱",
-        2: "强",
-    }
-
-    if k == 4:
-        name_map = level_names_4
-    elif k == 3:
-        name_map = level_names_3
-    else:
-        name_map = level_names_2
+    quantile_name_map = cbi_level_names(k)
+    natural_name_map = cbi_level_names(natural_k)
+    quantile_break_text = format_breaks_for_output(quantile_bins)
+    natural_break_text = format_breaks_for_output(natural_breaks)
 
     for idx in df.index:
         if not bool(df.loc[idx, "reliable_window"]):
@@ -1737,11 +1881,36 @@ def add_local_cbi_levels(window_df):
 
         cbi = float(df.loc[idx, "CBI"])
 
-        level_no = int(np.searchsorted(bins, cbi, side="right") + 1)
-        level_no = max(1, min(level_no, k))
+        quantile_level_no = assign_level_by_upper_breaks(cbi, quantile_bins, k)
+        natural_level_no = assign_level_by_upper_breaks(
+            cbi,
+            natural_upper_bins,
+            natural_k
+        )
 
-        df.loc[idx, "CBI_level_no"] = level_no
-        df.loc[idx, "CBI_level"] = name_map.get(level_no, "未评级")
+        # 兼容字段：CBI_level 仍代表分位数稳定基准。
+        df.loc[idx, "CBI_level_no"] = quantile_level_no
+        df.loc[idx, "CBI_level"] = quantile_name_map.get(
+            quantile_level_no,
+            "未评级"
+        )
+
+        df.loc[idx, "CBI_quantile_level_no"] = quantile_level_no
+        df.loc[idx, "CBI_quantile_level"] = quantile_name_map.get(
+            quantile_level_no,
+            "未评级"
+        )
+        df.loc[idx, "CBI_quantile_breaks"] = quantile_break_text
+
+        df.loc[idx, "CBI_natural_level_no"] = natural_level_no
+        df.loc[idx, "CBI_natural_level"] = natural_name_map.get(
+            natural_level_no,
+            "未评级"
+        )
+        df.loc[idx, "CBI_natural_breaks"] = natural_break_text
+        df.loc[idx, "CBI_level_agreement"] = (
+            quantile_level_no == natural_level_no
+        )
 
     df["valid_contrast_window"] = (
         (df["reliable_window"] == True)
@@ -2407,9 +2576,40 @@ def summarize_mountain_cultural_boundary_strength(
 
     primary["evidence_quality"] = primary.apply(evidence_quality, axis=1)
 
-    primary["mountain_CBI_level"] = primary["mountain_CBI"].apply(
+    primary["mountain_CBI_fixed_level"] = primary["mountain_CBI"].apply(
         cbi_level_from_score
     )
+
+    mountain_breaks = jenks_natural_breaks(
+        primary["mountain_CBI"],
+        max_classes=4
+    )
+    mountain_upper_bins = (
+        mountain_breaks[1:]
+        if len(mountain_breaks) > 1
+        else mountain_breaks
+    )
+    mountain_natural_k = max(1, len(mountain_upper_bins))
+    mountain_natural_names = cbi_level_names(mountain_natural_k)
+    mountain_break_text = format_breaks_for_output(mountain_breaks)
+
+    primary["mountain_CBI_natural_level_no"] = primary["mountain_CBI"].apply(
+        lambda x: assign_level_by_upper_breaks(
+            x,
+            mountain_upper_bins,
+            mountain_natural_k
+        )
+    )
+    primary["mountain_CBI_natural_level"] = primary[
+        "mountain_CBI_natural_level_no"
+    ].apply(lambda x: mountain_natural_names.get(int(x), "未评级"))
+    primary["mountain_CBI_natural_breaks"] = mountain_break_text
+
+    # 主展示等级改为自然断点等级；固定阈值等级保存在 mountain_CBI_fixed_level。
+    primary["mountain_CBI_level"] = primary["mountain_CBI_natural_level"]
+    primary["mountain_CBI_level_method"] = "natural_breaks_main_display"
+
+    log(f"mountain_CBI 自然断点主展示阈值：{mountain_breaks}")
 
     primary = primary.sort_values(
         ["mountain_CBI", "p90_reliable_local_CBI", "mean_reliable_local_CBI"],
