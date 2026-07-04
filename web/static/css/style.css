@@ -64,7 +64,8 @@ body {
   line-height: 1.8;
 }
 
-.header-note {
+.header-note,
+.hero-badges {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
@@ -72,7 +73,8 @@ body {
   max-width: 340px;
 }
 
-.header-note span {
+.header-note span,
+.hero-badges span {
   padding: 8px 12px;
   border: 1px solid rgba(30, 91, 137, 0.14);
   background: rgba(255, 255, 255, 0.72);
@@ -346,6 +348,17 @@ body {
   height: 330px;
 }
 
+.chart-axis-note {
+  margin: 10px 8px 0;
+  padding: 8px 10px;
+  border-left: 3px solid #2f6f9f;
+  background: rgba(47, 111, 159, 0.06);
+  color: #46627a;
+  font-size: 13px;
+  line-height: 1.7;
+  border-radius: 6px;
+}
+
 .leaflet-popup-content {
   line-height: 1.7;
   min-width: 220px;
@@ -376,7 +389,8 @@ body {
     flex-direction: column;
   }
 
-  .header-note {
+  .header-note,
+  .hero-badges {
     justify-content: flex-start;
   }
 
@@ -409,5 +423,12 @@ body {
 
   .chart-box {
     height: 300px;
+  }
+
+  .chart-axis-note {
+    margin: 8px 4px 0;
+    padding: 7px 9px;
+    font-size: 12px;
+    line-height: 1.6;
   }
 }
