@@ -164,9 +164,11 @@ async function loadInitialData() {
     state.mountainSystemRows = Array.isArray(mountainSystemRows) ? mountainSystemRows : [];
     state.windowRows = Array.isArray(windowRows) ? windowRows : [];
     state.segmentRows = Array.isArray(segmentRows) ? segmentRows : [];
-    computeWindowCbiNaturalBreaks();
 
+    computeWindowCbiNaturalBreaks();
+    ensureInfoPanels();
     fillMountainOptions();
+
     elements.queryButton.disabled = false;
     clearError();
     setStatus("06b 静态数据读取完成。请输入或选择山脉名称。");
@@ -245,6 +247,19 @@ function getPrimaryWindowRows(name) {
     .sort((a, b) => Number(a.center_station_km) - Number(b.center_station_km));
 }
 
+function getPrimarySegmentRows(name) {
+  const width = getPrimaryWidth(name);
+  return state.segmentRows
+    .filter((row) => row.boundary_name === name && Number(row.side_width_km) === width)
+    .sort((a, b) => Number(a.start_station_km) - Number(b.start_station_km));
+}
+
+function getSideWidthRows(name) {
+  return state.sideWidthRows
+    .filter((row) => row.boundary_name === name)
+    .sort((a, b) => Number(a.side_width_km) - Number(b.side_width_km));
+}
+
 function isTruthy(value) {
   return value === true || value === "true" || value === "True" || value === 1 || value === "1";
 }
@@ -255,6 +270,7 @@ function isCbiMetric(metric) {
 
 function computeWindowCbiNaturalBreaks() {
   const primaryWidthByMountain = new Map();
+
   state.summaryRows.forEach((row) => {
     if (!row.boundary_name) return;
     const width = Number(row.primary_side_width_km ?? row.side_width_km);
@@ -348,6 +364,7 @@ function jenksNaturalBreaks(values, maxClasses = 4) {
 
   let count = k;
   let idx = n;
+
   while (count >= 2) {
     const splitIndex = Math.max(0, Math.min(n - 1, lower[idx][count] - 2));
     breaks[count - 1] = sorted[splitIndex];
@@ -356,19 +373,6 @@ function jenksNaturalBreaks(values, maxClasses = 4) {
   }
 
   return breaks;
-}
-
-function getPrimarySegmentRows(name) {
-  const width = getPrimaryWidth(name);
-  return state.segmentRows
-    .filter((row) => row.boundary_name === name && Number(row.side_width_km) === width)
-    .sort((a, b) => Number(a.start_station_km) - Number(b.start_station_km));
-}
-
-function getSideWidthRows(name) {
-  return state.sideWidthRows
-    .filter((row) => row.boundary_name === name)
-    .sort((a, b) => Number(a.side_width_km) - Number(b.side_width_km));
 }
 
 async function loadGeoJson(relativePath) {
@@ -397,6 +401,7 @@ async function runQuery() {
 
   try {
     setStatus(`正在加载 ${mountainName} 的山脉线、移动窗口和连续段 GeoJSON……`);
+
     const [boundaryGeoJson, windowGeoJson, segmentGeoJson, pointGeoJson] = await Promise.all([
       loadGeoJson(meta.boundary_file),
       loadGeoJson(meta.window_file),
@@ -406,12 +411,15 @@ async function runQuery() {
 
     renderMap(boundaryGeoJson, windowGeoJson, segmentGeoJson, pointGeoJson);
     renderMetrics(mountainName);
+    renderMountainSystemPanel(mountainName);
+    renderIndexReadingGuide(mountainName);
     renderCharts(mountainName);
     renderInterpretation(mountainName);
 
     const summary = getSummaryRow(mountainName);
     const sideWidth = summary?.primary_side_width_km ?? meta.primary_side_width_km;
     const cbiText = meta.has_cbi ? `窗口 ${meta.n_windows} 个 | 连续段 ${meta.n_segments} 个` : "样本不足/无有效窗口";
+
     elements.mapMeta.textContent = `${mountainName} | 主侧宽 ${formatNumber(sideWidth, 0)} km | ${cbiText} | 地名点 ${meta.n_place_points || 0} 个`;
     setStatus("查询完成。");
   } catch (error) {
@@ -453,10 +461,12 @@ function fitCurrentMapBounds() {
     ...state.segmentLayer.getLayers(),
     ...state.pointLayer.getLayers(),
   ];
+
   if (!layers.length) return;
 
   const group = L.featureGroup(layers);
   const bounds = group.getBounds();
+
   if (bounds.isValid()) {
     state.map.fitBounds(bounds.pad(0.12));
   }
@@ -465,6 +475,7 @@ function fitCurrentMapBounds() {
 function windowStyle(feature) {
   const metric = elements.windowColorSelect.value;
   const value = Number(feature.properties?.[metric] ?? 0);
+
   return {
     color: getValueColor(value, metric),
     weight: feature.properties?.valid_contrast_window ? 7 : 5,
@@ -500,11 +511,13 @@ function getWindowCbiNaturalClassIndex(value) {
   if (!Number.isFinite(value) || !breaks || breaks.length < 2) return 0;
 
   const upperBreaks = breaks.slice(1);
+
   for (let i = 0; i < upperBreaks.length; i += 1) {
     if (value <= upperBreaks[i] || i === upperBreaks.length - 1) {
       return Math.max(0, Math.min(i, WINDOW_CBI_COLORS.length - 1));
     }
   }
+
   return WINDOW_CBI_COLORS.length - 1;
 }
 
@@ -514,6 +527,7 @@ function getWindowCbiNaturalColor(value) {
 
 function bindWindowPopup(feature, layer) {
   const p = feature.properties || {};
+
   layer.bindPopup(`
     <div class="popup-card">
       <strong>移动窗口 #${escapeHtml(p.window_id ?? "—")}</strong>
@@ -530,6 +544,7 @@ function bindWindowPopup(feature, layer) {
 
 function bindSegmentPopup(feature, layer) {
   const p = feature.properties || {};
+
   layer.bindPopup(`
     <div class="popup-card">
       <strong>分异连续段 #${escapeHtml(p.contrast_segment_id ?? "—")}</strong>
@@ -545,6 +560,7 @@ function bindSegmentPopup(feature, layer) {
 function bindPointPopup(feature, layer) {
   const p = feature.properties || {};
   const displayName = p.clean_name || p.raw_name || p.full_name || "未命名";
+
   layer.bindPopup(`
     <div class="popup-card">
       <strong>${escapeHtml(displayName)}</strong>
@@ -594,17 +610,20 @@ function updateLegend() {
 
 function buildWindowCbiNaturalLegend(metric) {
   const breaks = state.windowCbiNaturalBreaks;
+
   if (!breaks || breaks.length < 2) {
     return [["自然断点未生成", "#b7c7d6"]];
   }
 
   const metricLabel = metric === "CBI" ? "local_CBI" : metric;
   const rows = [];
+
   for (let i = 0; i < breaks.length - 1; i += 1) {
     const left = formatNumber(breaks[i]);
     const right = formatNumber(breaks[i + 1]);
     const level = WINDOW_CBI_LEVEL_LABELS[i] || `第 ${i + 1} 类`;
     const prefix = i === 0 ? `${left}-${right}` : `>${left}-${right}`;
+
     rows.push([
       `${level} ${prefix}`,
       WINDOW_CBI_COLORS[Math.min(i, WINDOW_CBI_COLORS.length - 1)],
@@ -615,6 +634,7 @@ function buildWindowCbiNaturalLegend(metric) {
     `${metricLabel} 自然断点：主侧宽可靠窗口 n=${state.windowCbiBreakSourceCount}`,
     "transparent",
   ]);
+
   return rows;
 }
 
@@ -622,6 +642,7 @@ function renderMetrics(name) {
   const row = getSummaryRow(name) || {};
   const meta = findMountainMeta(name) || {};
   const noCbiLabel = meta.has_cbi === false ? "无有效窗口" : "未计算";
+
   metricElements.mountainCbi.textContent = row.mountain_CBI === undefined ? noCbiLabel : formatNumber(row.mountain_CBI);
   metricElements.mountainLevel.textContent = row.mountain_CBI_level || noCbiLabel;
   metricElements.localSignal.textContent = row.local_signal_CBI === undefined ? noCbiLabel : formatNumber(row.local_signal_CBI);
@@ -632,6 +653,270 @@ function renderMetrics(name) {
   metricElements.segmentRatio.textContent = formatPercent(row.contrast_segment_ratio);
   metricElements.evidence.textContent = row.evidence_quality || (meta.has_cbi === false ? "样本不足/无有效窗口" : "尚未计算 CBI");
 }
+
+/* ============================================================
+   新增：自动插入“复合山系综合评价”和“指标阅读说明”面板
+   不需要改 index.html，main.js 会自动创建 DOM。
+============================================================ */
+
+function ensureInfoPanels() {
+  if (document.getElementById("mountainSystemPanel") && document.getElementById("indexReadingGuide")) {
+    return;
+  }
+
+  const mapElement = document.getElementById("map");
+  const mapSection = mapElement ? (mapElement.closest("section") || mapElement.parentElement) : null;
+  const parent = mapSection?.parentElement || document.body;
+
+  if (!document.getElementById("mountainSystemPanel")) {
+    const panel = document.createElement("section");
+    panel.id = "mountainSystemPanel";
+    panel.style.display = "none";
+    panel.style.margin = "20px 0";
+    parent.insertBefore(panel, mapSection);
+  }
+
+  if (!document.getElementById("indexReadingGuide")) {
+    const guide = document.createElement("section");
+    guide.id = "indexReadingGuide";
+    guide.style.margin = "20px 0";
+    parent.insertBefore(guide, mapSection);
+  }
+}
+
+function renderMountainSystemPanel(name) {
+  ensureInfoPanels();
+
+  const container = document.getElementById("mountainSystemPanel");
+  if (!container) return;
+
+  const row = getMountainSystemRow(name);
+
+  if (!row) {
+    container.innerHTML = "";
+    container.style.display = "none";
+    return;
+  }
+
+  container.style.display = "block";
+
+  container.innerHTML = `
+    <div style="
+      background:#ffffff;
+      border:1px solid #d8e5ef;
+      border-radius:18px;
+      padding:22px;
+      box-shadow:0 8px 24px rgba(30, 60, 90, 0.06);
+    ">
+      <h2 style="margin:0 0 16px 0;color:#003459;font-size:22px;">复合山系综合评价</h2>
+
+      <div style="
+        display:grid;
+        grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+        gap:14px;
+        margin-bottom:16px;
+      ">
+        ${metricBox("mountain_system_name", row.mountain_system_name)}
+        ${metricBox("mountain_system_CBI", formatNumber(row.mountain_system_CBI))}
+        ${metricBox("weighted_local_signal_CBI", formatNumber(row.weighted_local_signal_CBI))}
+        ${metricBox("system_reliable_coverage_ratio", formatPercent(row.system_reliable_coverage_ratio))}
+        ${metricBox("system_high_CBI_coverage_ratio", formatPercent(row.system_high_CBI_coverage_ratio))}
+        ${metricBox("system_contrast_segment_ratio", formatPercent(row.system_contrast_segment_ratio))}
+        ${metricBox("system_evidence_quality", row.system_evidence_quality || "—")}
+        ${metricBox("n_sub_mountains_found", row.n_sub_mountains_found || 0)}
+      </div>
+
+      <div style="
+        background:#f5f9fc;
+        border-left:5px solid #1e5b89;
+        padding:12px 14px;
+        border-radius:10px;
+        color:#243447;
+        line-height:1.75;
+        font-size:14px;
+      ">
+        <strong>阅读方式：</strong>
+        单条山脉的 <code>mountain_CBI</code> 评价的是 shp 中某一条山脉线；
+        <code>mountain_system_CBI</code> 评价的是复合山系，由多个子山脉按
+        <strong>长度 × 可靠覆盖 × 置信度</strong> 加权汇总。
+        对横断山这类复合山系，不能只看单条“横断山”线的 mountain_CBI。
+      </div>
+
+      <div style="margin-top:12px;color:#435b6d;line-height:1.8;font-size:14px;">
+        <strong>已纳入子山脉：</strong>${escapeHtml(row.sub_mountains_found || "—")}<br/>
+        <strong>缺失子山脉：</strong>${escapeHtml(row.sub_mountains_missing || "无")}<br/>
+        <strong>系统解释：</strong>${escapeHtml(row.system_interpretation || "—")}
+      </div>
+    </div>
+  `;
+}
+
+function renderIndexReadingGuide(name) {
+  ensureInfoPanels();
+
+  const container = document.getElementById("indexReadingGuide");
+  if (!container) return;
+
+  const row = getSummaryRow(name);
+  const meta = findMountainMeta(name);
+  const systemRow = getMountainSystemRow(name);
+
+  const judgement = getMountainJudgement(row, meta);
+  const specialNote = getSpecialMountainNote(name, systemRow);
+
+  container.innerHTML = `
+    <div style="
+      background:#ffffff;
+      border:1px solid #d8e5ef;
+      border-radius:18px;
+      padding:22px;
+      box-shadow:0 8px 24px rgba(30, 60, 90, 0.06);
+    ">
+      <h2 style="margin:0 0 16px 0;color:#003459;font-size:22px;">怎样阅读和判断这些指标？</h2>
+
+      <div style="
+        display:grid;
+        grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+        gap:14px;
+        margin-bottom:16px;
+      ">
+        ${explainBox("1. 先看 evidence_quality", "它判断结果能不能正式解释。无可靠窗口或诊断性证据不能直接下强结论；正式可靠最好；正式可用但需注意 clip 表示可以用，但要说明线性参考风险。")}
+        ${explainBox("2. 再看 mountain_CBI", "它是整条山脉尺度综合指数，不等于某个窗口的 CBI。它综合 local_CBI 强度、可靠覆盖、高 CBI 覆盖、候选分异覆盖和连续段比例。")}
+        ${explainBox("3. 再看 local_signal_CBI", "它表示有没有局部强信号。local_signal 高但 mountain_CBI 低，通常说明局部差异明显，但覆盖范围或连续性不足。")}
+        ${explainBox("4. 看 reliable_coverage_ratio", "可靠覆盖比例越高，说明可靠窗口覆盖整条山脉越充分。覆盖比例低时，即使局部窗口很红，也不能说整条山脉强分隔。")}
+        ${explainBox("5. 看 contrast_segment_ratio", "它表示地名文化社区分异连续段覆盖比例。为 0 不代表没有分隔作用，只代表没有识别到满足连续合并条件的连续段。")}
+        ${explainBox("6. 看 clip 风险", "clip 风险高说明 station_m 线性参考或窗口归属可能受山脉线几何影响。可以用，但论文里要写谨慎解释。")}
+      </div>
+
+      <div style="
+        background:#fff8e8;
+        border-left:5px solid #f2b84b;
+        padding:12px 14px;
+        border-radius:10px;
+        line-height:1.8;
+        color:#4c3a14;
+        margin-bottom:14px;
+      ">
+        <strong>当前查询判断：</strong>${judgement}
+      </div>
+
+      <div style="
+        background:#eef6fb;
+        border-left:5px solid #1e5b89;
+        padding:12px 14px;
+        border-radius:10px;
+        line-height:1.8;
+        color:#243447;
+      ">
+        <strong>核心原则：</strong><br/>
+        ① 局部窗口 local_CBI 高，不等于整条山脉 mountain_CBI 高。<br/>
+        ② 地图颜色显示的是窗口尺度 local_CBI，不是山脉整体等级。<br/>
+        ③ 山脉整体判断应以 mountain_CBI、rank、evidence_quality、reliable_coverage_ratio 和 contrast_segment_ratio 综合判断。<br/>
+        ④ 横断山这类复合山系，应同时参考 mountain_system_CBI。
+        ${specialNote ? `<br/><br/><strong>特殊说明：</strong>${specialNote}` : ""}
+      </div>
+
+      <div style="margin-top:14px;color:#435b6d;line-height:1.8;font-size:14px;">
+        <strong>当前数值：</strong>
+        mountain_CBI=${formatNumber(row?.mountain_CBI)}；
+        local_signal_CBI=${formatNumber(row?.local_signal_CBI)}；
+        reliable_coverage=${formatPercent(row?.reliable_coverage_ratio)}；
+        high_CBI_coverage=${formatPercent(row?.high_CBI_coverage_ratio)}；
+        contrast_segment_ratio=${formatPercent(row?.contrast_segment_ratio)}；
+        evidence_quality=${escapeHtml(row?.evidence_quality || "—")}。
+      </div>
+    </div>
+  `;
+}
+
+function metricBox(label, value) {
+  return `
+    <div style="
+      background:linear-gradient(180deg,#f6fbff,#ffffff);
+      border:1px solid #d8e5ef;
+      border-radius:14px;
+      padding:14px 16px;
+      min-height:78px;
+    ">
+      <div style="font-size:12px;color:#4f6f86;margin-bottom:10px;">${escapeHtml(label)}</div>
+      <div style="font-size:22px;font-weight:800;color:#003459;">${escapeHtml(value ?? "—")}</div>
+    </div>
+  `;
+}
+
+function explainBox(title, text) {
+  return `
+    <div style="
+      background:#f7fbff;
+      border:1px solid #d8e5ef;
+      border-radius:14px;
+      padding:14px;
+      line-height:1.75;
+      color:#243447;
+      font-size:14px;
+    ">
+      <div style="font-weight:700;color:#003459;margin-bottom:6px;">${escapeHtml(title)}</div>
+      <div>${escapeHtml(text)}</div>
+    </div>
+  `;
+}
+
+function getMountainJudgement(row, meta) {
+  if (!row) {
+    if (meta?.has_cbi === false) {
+      return "当前山脉没有形成有效 moving-window CBI，主要作为空间展示或样本不足案例，不宜判断文化分隔强弱。";
+    }
+    return "当前山脉暂无可用 CBI 指标。";
+  }
+
+  const cbi = Number(row.mountain_CBI || 0);
+  const localSignal = Number(row.local_signal_CBI || 0);
+  const reliableCoverage = Number(row.reliable_coverage_ratio || 0);
+  const segmentRatio = Number(row.contrast_segment_ratio || 0);
+  const evidence = String(row.evidence_quality || "");
+
+  if (evidence.includes("无可靠窗口")) {
+    return "无可靠窗口，不能正式判断山脉文化分隔强弱。";
+  }
+
+  if (evidence.includes("诊断性")) {
+    return "结果更适合作为诊断性证据，不能作为论文主结论。";
+  }
+
+  if (localSignal >= 0.5 && reliableCoverage < 0.3) {
+    return "局部地名文化分异信号较强，但可靠覆盖不足，更适合解释为局部强信号，而不是整条山脉强分隔。";
+  }
+
+  if (cbi >= 0.5 && reliableCoverage >= 0.3) {
+    return "山脉尺度综合分隔证据较强，可作为重点解释对象，但仍需结合 clip 风险和连续段结果。";
+  }
+
+  if (cbi >= 0.25 || localSignal >= 0.35) {
+    return "存在一定地名文化分异信号，但整体分隔强度需要结合覆盖比例和连续段比例谨慎解释。";
+  }
+
+  if (segmentRatio > 0) {
+    return "虽然 mountain_CBI 不高，但存在地名文化社区分异连续段，可作为局部空间证据。";
+  }
+
+  return "当前结果显示山脉尺度综合分隔证据偏弱，若现实认知较强，应优先检查山脉线数据、侧宽设置和样本覆盖。";
+}
+
+function getSpecialMountainNote(name, systemRow) {
+  if (name === "横断山") {
+    return "当前“横断山”是 shp 中单条线要素，不能等同于完整横断山系。现实横断山更适合按高黎贡山、怒山、云岭、沙鲁里山、大雪山、邛崃山等子山脉构建复合山系指标。";
+  }
+
+  if (systemRow && systemRow.mountain_system_name) {
+    return `${name} 属于 ${systemRow.mountain_system_name}，建议同时查看复合山系综合评价。`;
+  }
+
+  return "";
+}
+
+/* ============================================================
+   图表
+============================================================ */
 
 function renderCharts(name) {
   const windows = getPrimaryWindowRows(name);
@@ -678,6 +963,7 @@ function renderWindowCbiChart(windows) {
 
 function renderSmallBigChart(windows) {
   const labels = windows.map((row) => Number(row.center_station_km));
+
   state.charts.smallBig.setOption({
     animationDuration: 500,
     tooltip: { trigger: "axis" },
@@ -774,6 +1060,7 @@ function renderSegmentChart(segments) {
 
 function renderInterpretation(name) {
   const row = getSummaryRow(name);
+
   if (!row) {
     const meta = findMountainMeta(name) || {};
     elements.interpretationText.textContent =
@@ -814,6 +1101,7 @@ function syncSelectFromInput() {
   const typed = (elements.mountainInput.value || "").trim();
   const options = [...elements.mountainSelect.options];
   const match = options.find((option) => option.value === typed);
+
   if (match) {
     elements.mountainSelect.value = typed;
   }
@@ -834,8 +1122,8 @@ function formatPercent(value) {
 }
 
 function formatBool(value) {
-  if (value === true || value === "True") return "是";
-  if (value === false || value === "False") return "否";
+  if (value === true || value === "True" || value === "true") return "是";
+  if (value === false || value === "False" || value === "false") return "否";
   return "—";
 }
 
@@ -865,12 +1153,14 @@ function clearError() {
 elements.mountainSelect.addEventListener("change", syncInputFromSelect);
 elements.mountainInput.addEventListener("input", syncSelectFromInput);
 elements.queryButton.addEventListener("click", runQuery);
+
 elements.windowColorSelect.addEventListener("change", () => {
   if (state.windowLayer) {
     state.windowLayer.setStyle(windowStyle);
     updateLegend();
   }
 });
+
 elements.mapModeSelect.addEventListener("change", runQuery);
 
 initMap();
