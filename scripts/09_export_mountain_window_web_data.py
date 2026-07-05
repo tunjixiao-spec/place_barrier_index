@@ -99,6 +99,13 @@ MOUNTAIN_SIDE_WIDTH_SUMMARY_CSV = Path(
         TABLE_06B_DIR / "mountain_side_width_summary.csv"
     )
 )
+MOUNTAIN_SYSTEM_CULTURAL_BOUNDARY_STRENGTH_CSV = Path(
+    getattr(
+        config,
+        "MOUNTAIN_SYSTEM_CULTURAL_BOUNDARY_STRENGTH_CSV",
+        TABLE_06B_DIR / "mountain_system_cultural_boundary_strength.csv"
+    )
+)
 
 WEB_DIR = BASE_DIR / "web"
 WEB_DATA_DIR = WEB_DIR / "data" / "mountain_windows"
@@ -414,6 +421,14 @@ def export_mountain_window_data():
     else:
         side_width_df = pd.DataFrame()
 
+    if MOUNTAIN_SYSTEM_CULTURAL_BOUNDARY_STRENGTH_CSV.exists():
+        mountain_system_df = pd.read_csv(
+            MOUNTAIN_SYSTEM_CULTURAL_BOUNDARY_STRENGTH_CSV,
+            encoding="utf-8-sig"
+        )
+    else:
+        mountain_system_df = pd.DataFrame()
+
     mountain_gdf = gpd.read_file(MOUNTAIN_SHP)
     if mountain_gdf.crs is None:
         mountain_gdf = mountain_gdf.set_crs("EPSG:4326", allow_override=True)
@@ -596,11 +611,16 @@ def export_mountain_window_data():
 
     summary_records = dataframe_to_records(summary_df)
     side_width_records = dataframe_to_records(side_width_df) if len(side_width_df) else []
+    mountain_system_records = (
+        dataframe_to_records(mountain_system_df)
+        if len(mountain_system_df) else []
+    )
     window_records = dataframe_to_records(window_df)
     segment_records = dataframe_to_records(segment_df)
 
     write_json(WEB_DATA_DIR / "mountain_summary.json", summary_records)
     write_json(WEB_DATA_DIR / "mountain_side_width_summary.json", side_width_records)
+    write_json(WEB_DATA_DIR / "mountain_system_summary.json", mountain_system_records)
     write_json(WEB_DATA_DIR / "mountain_windows_table.json", window_records)
     write_json(WEB_DATA_DIR / "mountain_segments_table.json", segment_records)
     write_json(

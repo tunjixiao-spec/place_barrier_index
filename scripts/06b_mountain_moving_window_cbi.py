@@ -204,6 +204,32 @@ MOUNTAIN_SIDE_WIDTH_SUMMARY_CSV = getattr(
     TABLE_06B_DIR / "mountain_side_width_summary.csv"
 )
 
+MOUNTAIN_SYSTEM_CULTURAL_BOUNDARY_STRENGTH_CSV = getattr(
+    config,
+    "MOUNTAIN_SYSTEM_CULTURAL_BOUNDARY_STRENGTH_CSV",
+    TABLE_06B_DIR / "mountain_system_cultural_boundary_strength.csv"
+)
+
+# 复合山系映射。单条山脉线仍按 mountain_CBI 评价；
+# 横断山这类复合山系另按子山脉可靠证据长度加权汇总。
+MOUNTAIN_SYSTEM_GROUPS = getattr(
+    config,
+    "MOUNTAIN_SYSTEM_GROUPS",
+    {
+        "横断山系": [
+            "高黎贡山",
+            "怒山",
+            "云岭",
+            "沙鲁里山",
+            "大雪山",
+            "邛崃山",
+            "岷山",
+            "无量山",
+            "哀牢山",
+        ]
+    }
+)
+
 MOUNTAIN_CBI_RUN_METADATA_JSON = getattr(
     config,
     "MOUNTAIN_CBI_RUN_METADATA_JSON",
@@ -370,6 +396,31 @@ MOUNTAIN_STRENGTH_CORE_COLUMNS = [
     "segment_interpretation",
     "clip_interpretation",
     "parameter_advice",
+]
+
+
+MOUNTAIN_SYSTEM_STRENGTH_CORE_COLUMNS = [
+    "mountain_system_name",
+    "system_type",
+    "n_sub_mountains_configured",
+    "n_sub_mountains_found",
+    "sub_mountains_configured",
+    "sub_mountains_found",
+    "sub_mountains_missing",
+    "total_sub_mountain_length_km",
+    "evidence_weight_sum",
+    "mountain_system_CBI",
+    "mountain_system_rank",
+    "weighted_local_signal_CBI",
+    "system_reliable_coverage_ratio",
+    "system_high_CBI_coverage_ratio",
+    "system_contrast_segment_ratio",
+    "max_sub_mountain_CBI",
+    "max_local_signal_CBI",
+    "strong_sub_mountain_ratio",
+    "mean_mountain_CBI_confidence",
+    "system_evidence_quality",
+    "system_interpretation",
 ]
 
 
@@ -816,6 +867,9 @@ def write_run_metadata(mountain_strength_df, side_width_summary_df):
                 MOUNTAIN_CULTURAL_BOUNDARY_STRENGTH_CSV
             ),
             "MOUNTAIN_SIDE_WIDTH_SUMMARY_CSV": str(MOUNTAIN_SIDE_WIDTH_SUMMARY_CSV),
+            "MOUNTAIN_SYSTEM_CULTURAL_BOUNDARY_STRENGTH_CSV": str(
+                MOUNTAIN_SYSTEM_CULTURAL_BOUNDARY_STRENGTH_CSV
+            ),
         },
         "parameters": {
             "LOCAL_WINDOW_STEP_KM": LOCAL_WINDOW_STEP_KM,
@@ -979,6 +1033,152 @@ def explain_parameter_advice(row):
         )
 
     return "当前参数下已有可靠窗口，可优先解释 mountain_CBI、local_CBI 分布和连续段结果。"
+
+
+
+def summarize_mountain_system_cultural_boundary_strength(mountain_strength_df):
+    """
+    汇总复合山系级 cultural boundary strength。
+
+    适用对象：横断山系这类“多列山脉 + 河谷走廊”的复合山系。
+    注意：该函数不改变单条山脉 mountain_CBI，只新增 mountain_system_CBI。
+    """
+    if mountain_strength_df is None or len(mountain_strength_df) == 0:
+        return pd.DataFrame(columns=MOUNTAIN_SYSTEM_STRENGTH_CORE_COLUMNS)
+
+    rows = []
+    source = mountain_strength_df.copy()
+    source["boundary_name"] = source["boundary_name"].astype(str)
+
+    for system_name, sub_names in MOUNTAIN_SYSTEM_GROUPS.items():
+        configured = [str(name) for name in sub_names]
+        sub = source[source["boundary_name"].isin(configured)].copy()
+        found = sub["boundary_name"].astype(str).tolist()
+        missing = [name for name in configured if name not in set(found)]
+
+        if len(sub) == 0:
+            rows.append({
+                "mountain_system_name": system_name,
+                "system_type": "composite_mountain_system",
+                "n_sub_mountains_configured": len(configured),
+                "n_sub_mountains_found": 0,
+                "sub_mountains_configured": "|".join(configured),
+                "sub_mountains_found": "",
+                "sub_mountains_missing": "|".join(missing),
+                "system_evidence_quality": "无可用子山脉证据",
+                "system_interpretation": (
+                    f"{system_name} 未在当前 mountain_CBI 表中匹配到子山脉，"
+                    "无法进行山系级综合评价。"
+                ),
+            })
+            continue
+
+        length = pd.to_numeric(
+            sub.get("mountain_length_km", 0),
+            errors="coerce"
+        ).fillna(0.0)
+        reliable = pd.to_numeric(
+            sub.get("reliable_coverage_ratio", 0),
+            errors="coerce"
+        ).fillna(0.0).clip(lower=0.0)
+        confidence = pd.to_numeric(
+            sub.get("mountain_CBI_confidence", 0),
+            errors="coerce"
+        ).fillna(0.0).clip(lower=0.0)
+        cbi = pd.to_numeric(
+            sub.get("mountain_CBI", 0),
+            errors="coerce"
+        ).fillna(0.0)
+        local_signal = pd.to_numeric(
+            sub.get("local_signal_CBI", 0),
+            errors="coerce"
+        ).fillna(0.0)
+        high_cover = pd.to_numeric(
+            sub.get("high_CBI_coverage_ratio", 0),
+            errors="coerce"
+        ).fillna(0.0)
+        contrast = pd.to_numeric(
+            sub.get("contrast_segment_ratio", 0),
+            errors="coerce"
+        ).fillna(0.0)
+
+        # 可靠证据长度权重：长度越长、可靠覆盖越充分、置信度越高，权重越大。
+        evidence_weight = length * reliable * confidence
+        weight_sum = float(evidence_weight.sum())
+        total_length = float(length.sum())
+
+        if weight_sum > 0:
+            system_cbi = float((cbi * evidence_weight).sum() / weight_sum)
+            weighted_local_signal = float(
+                (local_signal * evidence_weight).sum() / weight_sum
+            )
+            system_contrast = float((contrast * evidence_weight).sum() / weight_sum)
+        else:
+            system_cbi = np.nan
+            weighted_local_signal = np.nan
+            system_contrast = np.nan
+
+        if total_length > 0:
+            system_reliable = float((reliable * length).sum() / total_length)
+            system_high = float((high_cover * length).sum() / total_length)
+        else:
+            system_reliable = np.nan
+            system_high = np.nan
+
+        strong_mask = sub["mountain_CBI_natural_level"].astype(str).isin(["较强", "强"])
+        strong_ratio = float(strong_mask.mean()) if len(sub) else np.nan
+        mean_confidence = float(confidence.mean()) if len(sub) else np.nan
+
+        if not np.isfinite(system_cbi):
+            evidence_quality = "无可靠加权证据"
+        elif system_reliable >= 0.60 and mean_confidence >= 0.75:
+            evidence_quality = "山系级证据较可靠"
+        elif system_reliable >= 0.35:
+            evidence_quality = "山系级证据可用但需谨慎"
+        else:
+            evidence_quality = "山系级覆盖不足，需谨慎解释"
+
+        interpretation = (
+            f"{system_name}按复合山系处理，共配置 {len(configured)} 条子山脉，"
+            f"当前匹配 {len(sub)} 条。mountain_system_CBI 采用"
+            "子山脉长度×可靠覆盖×置信度加权，表示当前数据下山系尺度"
+            "地名文化分隔证据；它不等同于单条“横断山”线的 mountain_CBI。"
+        )
+
+        rows.append({
+            "mountain_system_name": system_name,
+            "system_type": "composite_mountain_system",
+            "n_sub_mountains_configured": len(configured),
+            "n_sub_mountains_found": len(sub),
+            "sub_mountains_configured": "|".join(configured),
+            "sub_mountains_found": "|".join(found),
+            "sub_mountains_missing": "|".join(missing),
+            "total_sub_mountain_length_km": total_length,
+            "evidence_weight_sum": weight_sum,
+            "mountain_system_CBI": system_cbi,
+            "weighted_local_signal_CBI": weighted_local_signal,
+            "system_reliable_coverage_ratio": system_reliable,
+            "system_high_CBI_coverage_ratio": system_high,
+            "system_contrast_segment_ratio": system_contrast,
+            "max_sub_mountain_CBI": float(cbi.max()) if len(cbi) else np.nan,
+            "max_local_signal_CBI": float(local_signal.max()) if len(local_signal) else np.nan,
+            "strong_sub_mountain_ratio": strong_ratio,
+            "mean_mountain_CBI_confidence": mean_confidence,
+            "system_evidence_quality": evidence_quality,
+            "system_interpretation": interpretation,
+        })
+
+    out = pd.DataFrame(rows)
+    if len(out) == 0:
+        return pd.DataFrame(columns=MOUNTAIN_SYSTEM_STRENGTH_CORE_COLUMNS)
+
+    out = out.sort_values(
+        ["mountain_system_CBI", "weighted_local_signal_CBI"],
+        ascending=[False, False],
+        na_position="last"
+    ).reset_index(drop=True)
+    out["mountain_system_rank"] = range(1, len(out) + 1)
+    return reorder_columns(out, MOUNTAIN_SYSTEM_STRENGTH_CORE_COLUMNS)
 
 
 def add_mountain_interpretation(out):
@@ -2678,7 +2878,7 @@ def build_and_write_outputs(
     """
     if len(all_window_results) == 0:
         log("尚无可写出的 local_CBI 结果。")
-        return None, None, None, None
+        return None, None, None, None, None
 
     window_df = pd.concat(all_window_results, ignore_index=True)
     window_df = window_df.drop_duplicates().reset_index(drop=True)
@@ -2691,6 +2891,9 @@ def build_and_write_outputs(
         window_df,
         segment_df,
         return_side_width_summary=True
+    )
+    mountain_system_strength_df = summarize_mountain_system_cultural_boundary_strength(
+        mountain_strength_df
     )
 
     window_df = reorder_columns(
@@ -2711,6 +2914,11 @@ def build_and_write_outputs(
     side_width_summary_df = reorder_columns(
         side_width_summary_df,
         MOUNTAIN_SIDE_WIDTH_CORE_COLUMNS
+    )
+
+    mountain_system_strength_df = reorder_columns(
+        mountain_system_strength_df,
+        MOUNTAIN_SYSTEM_STRENGTH_CORE_COLUMNS
     )
 
     TABLE_06B_DIR.mkdir(parents=True, exist_ok=True)
@@ -2741,6 +2949,12 @@ def build_and_write_outputs(
         label=f"{checkpoint_label}山脉侧宽候选敏感性汇总"
     )
 
+    write_csv_with_legacy_alias(
+        mountain_system_strength_df,
+        MOUNTAIN_SYSTEM_CULTURAL_BOUNDARY_STRENGTH_CSV,
+        label=f"{checkpoint_label}复合山系文化分隔强度 mountain_system_CBI"
+    )
+
     if write_metadata:
         write_run_metadata(mountain_strength_df, side_width_summary_df)
 
@@ -2753,7 +2967,13 @@ def build_and_write_outputs(
         f"{len(window_df)} 个窗口。"
     )
 
-    return window_df, segment_df, mountain_strength_df, side_width_summary_df
+    return (
+        window_df,
+        segment_df,
+        mountain_strength_df,
+        side_width_summary_df,
+        mountain_system_strength_df,
+    )
 
 
 # ------------------------------------------------------------

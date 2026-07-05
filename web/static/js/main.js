@@ -4,6 +4,7 @@ const DATA_PATHS = {
   index: `${DATA_ROOT}/mountain_window_index.json`,
   summary: `${DATA_ROOT}/mountain_summary.json`,
   sideWidth: `${DATA_ROOT}/mountain_side_width_summary.json`,
+  systemSummary: `${DATA_ROOT}/mountain_system_summary.json`,
   windowsTable: `${DATA_ROOT}/mountain_windows_table.json`,
   segmentsTable: `${DATA_ROOT}/mountain_segments_table.json`,
 };
@@ -19,6 +20,7 @@ const state = {
   index: null,
   summaryRows: [],
   sideWidthRows: [],
+  mountainSystemRows: [],
   windowRows: [],
   segmentRows: [],
   windowCbiNaturalBreaks: [],
@@ -147,10 +149,11 @@ async function fetchJson(path) {
 async function loadInitialData() {
   try {
     setStatus("正在读取 06b 静态索引和指标表……");
-    const [index, summaryRows, sideWidthRows, windowRows, segmentRows] = await Promise.all([
+    const [index, summaryRows, sideWidthRows, mountainSystemRows, windowRows, segmentRows] = await Promise.all([
       fetchJson(DATA_PATHS.index),
       fetchJson(DATA_PATHS.summary),
       fetchJson(DATA_PATHS.sideWidth),
+      fetchJson(DATA_PATHS.systemSummary),
       fetchJson(DATA_PATHS.windowsTable),
       fetchJson(DATA_PATHS.segmentsTable),
     ]);
@@ -158,6 +161,7 @@ async function loadInitialData() {
     state.index = index;
     state.summaryRows = Array.isArray(summaryRows) ? summaryRows : [];
     state.sideWidthRows = Array.isArray(sideWidthRows) ? sideWidthRows : [];
+    state.mountainSystemRows = Array.isArray(mountainSystemRows) ? mountainSystemRows : [];
     state.windowRows = Array.isArray(windowRows) ? windowRows : [];
     state.segmentRows = Array.isArray(segmentRows) ? segmentRows : [];
     computeWindowCbiNaturalBreaks();
@@ -210,6 +214,23 @@ function findMountainMeta(name) {
 
 function getSummaryRow(name) {
   return state.summaryRows.find((row) => row.boundary_name === name) || null;
+}
+
+function splitPipeList(value) {
+  if (!value || value === null) return [];
+  return String(value).split("|").map((item) => item.trim()).filter(Boolean);
+}
+
+function getMountainSystemRow(name) {
+  return state.mountainSystemRows.find((row) => {
+    const systemName = row.mountain_system_name || "";
+    const found = splitPipeList(row.sub_mountains_found);
+    const configured = splitPipeList(row.sub_mountains_configured);
+    return systemName === name
+      || found.includes(name)
+      || configured.includes(name)
+      || (name === "横断山" && systemName === "横断山系");
+  }) || null;
 }
 
 function getPrimaryWidth(name) {
@@ -767,13 +788,22 @@ function renderInterpretation(name) {
     ? `识别到 ${row.n_contrast_segments} 条地名文化社区分异连续段，说明局部山段存在连续的两侧社区结构差异。`
     : "未识别到满足合并条件的分异连续段，但这不代表山脉尺度文化分隔强度低，应结合 local_signal_CBI 与覆盖比例解释。";
 
+  const systemRow = getMountainSystemRow(name);
+  const systemText = systemRow
+    ? ` 复合山系补充评价：${systemRow.mountain_system_name} 的 mountain_system_CBI 为 ${formatNumber(systemRow.mountain_system_CBI)}，`
+      + `山系级证据质量为“${systemRow.system_evidence_quality || "—"}”，`
+      + `可靠覆盖为 ${formatPercent(systemRow.system_reliable_coverage_ratio)}，`
+      + `该值由 ${systemRow.n_sub_mountains_found || 0} 条子山脉按长度×可靠覆盖×置信度加权得到，不能与单条“${name}”线的 mountain_CBI 混为一谈。`
+    : "";
+
   elements.interpretationText.textContent =
     `${name} 的 mountain_CBI 为 ${formatNumber(row.mountain_CBI)}，rank 为 ${escapeHtml(row.mountain_CBI_rank || "—")}；`
     + `自然断点展示等级为“${row.mountain_CBI_natural_level || row.mountain_CBI_level || "—"}”，证据质量为“${row.evidence_quality || "—"}”。`
     + `整体强弱判断以 mountain_CBI、rank 和 evidence_quality 为主，不以窗口地图颜色直接替代。`
     + ` local_signal_CBI 为 ${formatNumber(row.local_signal_CBI)}，当前主判读侧宽为 ${formatNumber(row.primary_side_width_km, 0)} km；`
     + `可靠覆盖比例为 ${formatPercent(row.reliable_coverage_ratio)}，高 CBI 覆盖比例为 ${formatPercent(row.high_CBI_coverage_ratio)}。`
-    + `${segmentText} clip 风险为“${row.clip_risk_level || "—"}”，station 线性参考质量为“${row.station_reference_quality || "—"}”。`;
+    + `${segmentText} clip 风险为“${row.clip_risk_level || "—"}”，station 线性参考质量为“${row.station_reference_quality || "—"}”。`
+    + systemText;
 }
 
 function syncInputFromSelect() {
