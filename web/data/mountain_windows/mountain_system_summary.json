@@ -1,0 +1,25 @@
+[
+  {
+    "mountain_system_name": "横断山系",
+    "system_type": "composite_mountain_system",
+    "n_sub_mountains_configured": 9,
+    "n_sub_mountains_found": 9,
+    "sub_mountains_configured": "高黎贡山|怒山|云岭|沙鲁里山|大雪山|邛崃山|岷山|无量山|哀牢山",
+    "sub_mountains_found": "无量山|哀牢山|邛崃山|怒山|岷山|云岭|高黎贡山|大雪山|沙鲁里山",
+    "sub_mountains_missing": null,
+    "total_sub_mountain_length_km": 2690.403132771351,
+    "evidence_weight_sum": 1413.0153249557875,
+    "mountain_system_CBI": 0.6595383515604977,
+    "mountain_system_rank": 1,
+    "weighted_local_signal_CBI": 0.6769134273243427,
+    "system_reliable_coverage_ratio": 0.6330213201711431,
+    "system_high_CBI_coverage_ratio": 0.5995690843691084,
+    "system_contrast_segment_ratio": 0.4359093549585785,
+    "max_sub_mountain_CBI": 0.7870158222343026,
+    "max_local_signal_CBI": 0.9145361563435828,
+    "strong_sub_mountain_ratio": 0.8888888888888888,
+    "mean_mountain_CBI_confidence": 0.8002661875842376,
+    "system_evidence_quality": "山系级证据较可靠",
+    "system_interpretation": "横断山系按复合山系处理，共配置 9 条子山脉，当前匹配 9 条。mountain_system_CBI 采用子山脉长度×可靠覆盖×置信度加权，表示当前数据下山系尺度地名文化分隔证据；它不等同于单条“横断山”线的 mountain_CBI。"
+  }
+]
