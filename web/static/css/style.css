@@ -432,3 +432,235 @@ body {
     line-height: 1.6;
   }
 }
+
+/* ============================================================
+   山脉尺度指标解释
+============================================================ */
+
+.metric-reading-guide {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border: 1px solid #d7e2ec;
+  border-radius: 14px;
+  background: #f8fbff;
+  color: #24415f;
+  line-height: 1.75;
+  font-size: 13px;
+}
+
+.metric-reading-guide .guide-title {
+  margin: 0 0 8px 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #17324d;
+}
+
+.metric-reading-guide ul {
+  margin: 8px 0 0 18px;
+  padding: 0;
+}
+
+.metric-reading-guide li {
+  margin-bottom: 4px;
+}
+
+/* ============================================================
+   山系补充视图
+============================================================ */
+
+.panel-section {
+  margin-top: 22px;
+}
+
+.section-header {
+  margin-bottom: 16px;
+}
+
+.section-header h2 {
+  margin: 0 0 6px 0;
+  font-size: 20px;
+  color: #0e2f4d;
+}
+
+.section-subtitle {
+  margin: 0;
+  font-size: 13px;
+  color: #5b7289;
+  line-height: 1.65;
+}
+
+.system-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.system-metric-card {
+  padding: 14px 16px;
+  border: 1px solid #d9e4ee;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #f9fbfd, #ffffff);
+}
+
+.system-metric-card .metric-label {
+  margin-bottom: 10px;
+  font-size: 12px;
+  color: #5c738a;
+  word-break: break-all;
+}
+
+.system-metric-card .metric-value {
+  font-size: 18px;
+  font-weight: 800;
+  color: #10314d;
+  word-break: break-word;
+}
+
+.system-metric-card .metric-sub {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #6a8096;
+  line-height: 1.45;
+}
+
+.mountain-system-guide {
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #f7fafc;
+  border: 1px solid #dde7f0;
+  color: #294662;
+  line-height: 1.75;
+  font-size: 13px;
+}
+
+.two-col-layout {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 16px;
+}
+
+.map-panel,
+.explain-panel {
+  padding: 14px;
+  border: 1px solid #d9e4ee;
+  border-radius: 18px;
+  background: #fbfdff;
+}
+
+.panel-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  gap: 12px;
+}
+
+.panel-title-row h3,
+.explain-panel h3 {
+  margin: 0;
+  font-size: 16px;
+  color: #10314d;
+}
+
+.panel-meta {
+  font-size: 12px;
+  color: #5f7690;
+}
+
+.map-box {
+  width: 100%;
+  height: 420px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid #dce6ef;
+  background: #eef4f9;
+}
+
+.legend-box {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid #dde6ef;
+  background: #ffffff;
+  font-size: 12px;
+  color: #2a4661;
+  line-height: 1.7;
+}
+
+.legend-title {
+  margin-bottom: 6px;
+  font-weight: 700;
+  color: #17324d;
+}
+
+.legend-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-swatch {
+  width: 28px;
+  height: 6px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.legend-note {
+  margin-top: 6px;
+  color: #60788f;
+  line-height: 1.6;
+}
+
+.auto-explain-box {
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: #f8fbff;
+  border: 1px solid #dde7f0;
+  color: #213e59;
+  line-height: 1.85;
+  font-size: 14px;
+  min-height: 392px;
+}
+
+.auto-explain-box strong {
+  color: #10314d;
+}
+
+.empty-note {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #f7fafc;
+  border: 1px dashed #cfdbe7;
+  color: #617a93;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+@media (max-width: 1100px) {
+  .two-col-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .system-metric-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .auto-explain-box {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 700px) {
+  .system-metric-grid {
+    grid-template-columns: 1fr;
+  }
+}

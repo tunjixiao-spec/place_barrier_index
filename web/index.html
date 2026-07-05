@@ -133,6 +133,66 @@
           <strong id="metricEvidence">—</strong>
         </div>
       </div>
+
+      <!-- 新增：山脉尺度核心指标简洁解释 -->
+      <div id="metricReadingGuide" class="metric-reading-guide">
+        <div class="guide-title">指标阅读说明</div>
+        <div>
+          <strong>mountain_CBI</strong> 表示单条线性山脉的综合文化分隔强度；
+          <strong>local_signal_CBI</strong> 表示该山脉是否存在较强局部分异信号；
+          <strong>reliable_coverage_ratio</strong> 表示可靠窗口覆盖比例；
+          <strong>high_CBI_coverage_ratio</strong> 表示高 local_CBI 窗口覆盖比例；
+          <strong>contrast_segment_ratio</strong> 表示地名文化社区分异连续段覆盖比例；
+          <strong>evidence_quality</strong> 用于判断结果是否可以正式解释。
+        </div>
+        <ul>
+          <li>局部窗口颜色深，不等于整条山脉 mountain_CBI 一定高。</li>
+          <li>mountain_CBI 应结合 rank、coverage 和 evidence_quality 综合判断。</li>
+          <li>横断山这类复合山系，应同时参考下方 mountain_system_CBI 山系补充视图。</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 新增：山系补充视图 -->
+    <section id="mountainSystemSection" class="panel panel-section">
+      <div class="section-header">
+        <h2>山系补充视图</h2>
+        <p class="section-subtitle">
+          当当前山脉属于更大的复合山系时，这里补充展示该山系的整体分隔作用，以及山系内部各线性山脉之间的差异。
+          山系视图的颜色分级沿用全部线性山脉 mountain_CBI 的 Jenks 自然断点阈值，保证单条山脉与山系成员之间具有同一评价标尺。
+        </p>
+      </div>
+
+      <div id="mountainSystemMetricGrid" class="system-metric-grid">
+        <div class="empty-note">请选择山脉后查看山系综合评价。</div>
+      </div>
+
+      <div id="mountainSystemGuide" class="mountain-system-guide">
+        山系视图用于避免把“单条山脉线结果”误读为“整个山系结果”。例如横断山现实上是复合山系，单条“横断山”线的 mountain_CBI 不能直接代表完整横断山系。
+      </div>
+
+      <div class="two-col-layout">
+        <div class="map-panel">
+          <div class="panel-title-row">
+            <h3>山系可视化视图</h3>
+            <span id="mountainSystemMapMeta" class="panel-meta">等待查询</span>
+          </div>
+
+          <div id="mountainSystemMap" class="map-box"></div>
+
+          <div id="mountainSystemLegend" class="legend-box">
+            <div class="legend-title">山系视图图例</div>
+            <div>等待查询。</div>
+          </div>
+        </div>
+
+        <div class="explain-panel">
+          <h3>山系自动解释</h3>
+          <div id="mountainSystemExplain" class="auto-explain-box">
+            请选择或输入山脉名称，然后点击“查询 CBI”。如果该山脉属于复合山系，这里会显示山系级 mountain_system_CBI 解释。
+          </div>
+        </div>
+      </div>
     </section>
 
     <div class="main-grid">
@@ -166,6 +226,7 @@
             <li>点击窗口可查看 CBI、small_CBI、big_CBI、可靠性和 clip 风险。</li>
             <li>点击连续段可查看平均 segment_local_CBI 和主导社区。</li>
             <li>点击地名点可查看地名、特征字、small_feature 和 big_feature。</li>
+            <li>窗口图例只解释 local_CBI，不等于 mountain_CBI 的山脉整体等级。</li>
           </ul>
         </div>
       </section>
