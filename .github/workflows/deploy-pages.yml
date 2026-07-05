@@ -2,9 +2,7 @@ name: Deploy static web to GitHub Pages
 
 on:
   push:
-    branches:
-      - main
-
+    branches: ["main"]
   workflow_dispatch:
 
 permissions:
@@ -14,7 +12,7 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -25,20 +23,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup GitHub Pages
+      - name: Configure Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload web directory
+      - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: web
-          name: mountain-cbi-web
 
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-        with:
-          artifact_name: mountain-cbi-web
