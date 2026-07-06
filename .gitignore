@@ -9,3 +9,7 @@ __pycache__/
 *.bak
 .DS_Store
 Thumbs.db
+
+# Private research implementation; keep exported web data public.
+scripts/06b_mountain_moving_window_cbi.py
+scripts/06b_mountain_moving_window_cbi.py.bak_*
