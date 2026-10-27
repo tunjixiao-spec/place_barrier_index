@@ -1,0 +1,9 @@
+﻿candidate_set,minimum_candidates,role,n_objects_meeting_threshold,share_of_131,share_of_87_observable,n_candidates_total,maximum,median_all131,q25_all131,q75_all131,q90_all131,q95_all131,median_positive,formal_inference_eligible
+A_initial88,1,new_diagnostic_sensitivity,23,0.1755725190839694,0.264367816091954,88,21,0.0,0.0,0.0,1.0,4.0,2.0,False
+A_initial88,5,new_diagnostic_sensitivity,6,0.0458015267175572,0.0689655172413793,88,21,0.0,0.0,0.0,1.0,4.0,2.0,False
+A_initial88,10,new_diagnostic_sensitivity,2,0.015267175572519,0.0229885057471264,88,21,0.0,0.0,0.0,1.0,4.0,2.0,False
+A_initial88,20,frozen_primary_feasibility,1,0.0076335877862595,0.0114942528735632,88,21,0.0,0.0,0.0,1.0,4.0,2.0,False
+B_retained65,1,new_diagnostic_sensitivity,18,0.1374045801526717,0.2068965517241379,65,13,0.0,0.0,0.0,1.0,3.0,2.0,False
+B_retained65,5,new_diagnostic_sensitivity,5,0.0381679389312977,0.057471264367816,65,13,0.0,0.0,0.0,1.0,3.0,2.0,False
+B_retained65,10,new_diagnostic_sensitivity,2,0.015267175572519,0.0229885057471264,65,13,0.0,0.0,0.0,1.0,3.0,2.0,False
+B_retained65,20,frozen_primary_feasibility,0,0.0,0.0,65,13,0.0,0.0,0.0,1.0,3.0,2.0,False

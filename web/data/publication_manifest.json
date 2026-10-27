@@ -1,0 +1,152 @@
+{
+  "version": "results-2026-10-27",
+  "files": [
+    {
+      "path": ".nojekyll",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "app.js",
+      "bytes": 8844,
+      "sha256": "8ee3bd5c6f66a04dd35d8536274745fe24e1def560303f181fb168594ca8d8b8"
+    },
+    {
+      "path": "data/results.json",
+      "bytes": 2820037,
+      "sha256": "b982cf7a50d26ba3d8151c94a7ff3f33dc1e4bc2a6a97ff76fd6159c9fde4964"
+    },
+    {
+      "path": "downloads/C_T20_base_primary_windows.csv",
+      "bytes": 320002,
+      "sha256": "25cbfc3edd5bef593870a159cfe5c66310c52a4dbdd9a0f240cdf0c1867a93f5"
+    },
+    {
+      "path": "downloads/CB_T20_base_primary_windows.csv",
+      "bytes": 320017,
+      "sha256": "6a82af61c786ffaf8337fc8165a879fbf1db7106382427b01bbda291ec77441a"
+    },
+    {
+      "path": "downloads/county_raw_name_province_summary.csv",
+      "bytes": 6633,
+      "sha256": "4abf323dba5779c3caaa97d52598b26339a352c44526cd5a859c224e069791f4"
+    },
+    {
+      "path": "downloads/N0_descriptive_background.csv",
+      "bytes": 33558,
+      "sha256": "c617d6f5f2249e04954d1c37d9d8c6c9d9d6bfcf8e6fc5ac27fc4bbd0e6507d9"
+    },
+    {
+      "path": "downloads/N1_frozen_pool_thresholds.csv",
+      "bytes": 1153,
+      "sha256": "5a2e27bc24746315dd2a4546a78aa65b91761fd930327b87e47d3df9bfb209b5"
+    },
+    {
+      "path": "downloads/primary_mountain_results.csv",
+      "bytes": 25385,
+      "sha256": "53eddb250bdcec3702f3f196d83d782d8555c26f7ff5b13858506c338ab1d9ce"
+    },
+    {
+      "path": "downloads/research-directions-20261027.pdf",
+      "bytes": 174204,
+      "sha256": "7c3d31f2921f2979c237cb472cc55f161494bd8c2ffe2b77b1147aad26d63323"
+    },
+    {
+      "path": "downloads/research-status-20261027.pdf",
+      "bytes": 157060,
+      "sha256": "db5b478b97573e5aafc17c4c43903fb79811a7ee7d0166fa0b644a9a1534dfea"
+    },
+    {
+      "path": "downloads/seed_stability_summary.csv",
+      "bytes": 960,
+      "sha256": "3283645531ab1fd4c47e90ce99f11506d5654de8bea1aae95adef042fa78be18"
+    },
+    {
+      "path": "downloads/source_threshold_sensitivity.csv",
+      "bytes": 1591,
+      "sha256": "e3fd673505d2a1b4090959e820a71834933ef97e1da89821a1e6dafdd5a7ee2b"
+    },
+    {
+      "path": "downloads/阶段成果说明.md",
+      "bytes": 1323,
+      "sha256": "8a1acce75906e088b1689c584430b2d74675b60fcac208c0dc4b0945b09db79f"
+    },
+    {
+      "path": "figures/01_support_coverage.pdf",
+      "bytes": 38323,
+      "sha256": "bb699081892d8109689561f4a6cb8fd96a393120e736326e19efbec64cd5a9f1"
+    },
+    {
+      "path": "figures/01_support_coverage.png",
+      "bytes": 150256,
+      "sha256": "f3d8c320bbada942cdf971a6430895cc58c58e4a7dd980ce87ac42f4ff1527fc"
+    },
+    {
+      "path": "figures/01_support_coverage.svg",
+      "bytes": 25357,
+      "sha256": "e17e522b5cdf291cf0b9e7410815abdcd457b699e47930b25cbc9bac54bffbdc"
+    },
+    {
+      "path": "figures/02_N1_thresholds.pdf",
+      "bytes": 34477,
+      "sha256": "18dd8d4b665a2525b61152e7a60630e28d3b6d57eefe90f596c6526aa7e9bc9e"
+    },
+    {
+      "path": "figures/02_N1_thresholds.png",
+      "bytes": 100896,
+      "sha256": "d39b5b55e08e35601f77c0de86b8222e32b978e985d15c3809343512f857e324"
+    },
+    {
+      "path": "figures/02_N1_thresholds.svg",
+      "bytes": 13908,
+      "sha256": "851975f6fac120f6a24cc9104009e2581c6162b38bcf2834d1b35dd57c129cf4"
+    },
+    {
+      "path": "figures/03_seed_diagnostics.pdf",
+      "bytes": 95817,
+      "sha256": "c0ad02456f20213946187b924033f1f94dcebf90953b7f030d69718ba3d44514"
+    },
+    {
+      "path": "figures/03_seed_diagnostics.png",
+      "bytes": 259728,
+      "sha256": "530679e9cda8ded7c2f934b8a4370505eba85cc2f13e21c98c9684a0fdaeab58"
+    },
+    {
+      "path": "figures/03_seed_diagnostics.svg",
+      "bytes": 137942,
+      "sha256": "dc29c1f4051c013819e2bbecc3d31bb58fe55e1fcd1461bd77559bb9724799bd"
+    },
+    {
+      "path": "figures/04_county_units.pdf",
+      "bytes": 66258,
+      "sha256": "88ba4a0b2d9b44395f4c63956a904683085f13878080f05ef0db4df15335e733"
+    },
+    {
+      "path": "figures/04_county_units.png",
+      "bytes": 230716,
+      "sha256": "4936922401a1bbb2c79e3471ea8e6f3047d376adf6d4ecd34d532df186e403f9"
+    },
+    {
+      "path": "figures/04_county_units.svg",
+      "bytes": 50678,
+      "sha256": "49779a48b3b87ceaf1c60b277b865af912771c78c3c360892336155803e781ea"
+    },
+    {
+      "path": "index.html",
+      "bytes": 11205,
+      "sha256": "176f178543239c5f858b1217b3fb2e76564fe4230ea62068caf09e1028999d35"
+    },
+    {
+      "path": "README.md",
+      "bytes": 1323,
+      "sha256": "8a1acce75906e088b1689c584430b2d74675b60fcac208c0dc4b0945b09db79f"
+    },
+    {
+      "path": "style.css",
+      "bytes": 11574,
+      "sha256": "1f83ae1df3e2b001b66956063ae079b0c5edf24e16613119b30b6d82e176c77b"
+    }
+  ],
+  "new_scientific_experiments": 0,
+  "source_code_publication": false
+}
